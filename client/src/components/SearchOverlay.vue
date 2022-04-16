@@ -17,22 +17,27 @@
           <p class="head__title head__title--open">Открыть</p>
         </div>
         <div class="results__items">
-          <overlay-product-card-sceleton></overlay-product-card-sceleton>
-          <overlay-product-card
-            v-for="product in 5"
-            :key="product"
-          ></overlay-product-card>
+          <Suspense>
+            <template #default>
+              <overlay-container></overlay-container>
+            </template>
+            <template #fallback>
+              <overlay-product-card-sceleton
+                v-for="item in 3"
+                :key="item"
+              ></overlay-product-card-sceleton>
+            </template>
+          </Suspense>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import axios from "axios";
-import OverlayProductCard from "./UI/OverlayProductCard.vue";
 import OverlayProductCardSceleton from "./UI/OverlayProductCardSceleton.vue";
+import OverlayContainer from "./OverlayContainer.vue";
 export default {
-  components: { OverlayProductCard, OverlayProductCardSceleton },
+  components: { OverlayProductCardSceleton, OverlayContainer },
   props: {
     active: {
       type: Boolean,
@@ -47,18 +52,7 @@ export default {
       products: [],
     };
   },
-  methods: {
-    async fetchSearchResults() {
-      this.loading = true;
-      //   const results = await axios.get("localhost:5000/search", {
-      //     params: {
-      //       text: this.searchText,
-      //       limit: 5,
-      //     },
-      //   });
-      this.products = results;
-    },
-  },
+  methods: {},
   computed: {
     overlayVisibility() {
       return this.active ? "visible" : "hidden";

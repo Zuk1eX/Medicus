@@ -1,5 +1,5 @@
 <template>
-  <div class="results-item">
+  <!-- <div class="results-item">
     <div class="results-item__left">
       <img
         :src="require('@/assets/img/photo.png')"
@@ -16,14 +16,47 @@
     <p class="results-item__offers">2 600 (120)</p>
     <p class="results-item__prices-range">69 ... 3 603</p>
     <a class="results-item__btn"></a>
+  </div> -->
+  <div class="results-item">
+    <div class="results-item__left">
+      <img :src="imageUrl" alt="" class="results-item__img" />
+      <div class="results-item__text">
+        <h3 class="results-item__title">{{ title }}</h3>
+        <p class="results-item__description">
+          {{ descr }}
+        </p>
+      </div>
+    </div>
+    <p class="results-item__offers" v-if="offers">{{ offers }}</p>
+    <p class="results-item__offers" v-else>Нет в наличии</p>
+    <p class="results-item__prices-range" v-if="minPrice">{{ minPrice }} ... {{ maxPrice }}</p>
+    <p class="results-item__prices-range" v-else>—</p>
+    <a class="results-item__btn"></a>
   </div>
 </template>
 <script>
 export default {
   name: "OverlayProductCard",
   props: {
-    
-  }
+    title: {
+      type: String,
+    },
+    descr: {
+      type: String,
+    },
+    offers: {
+      type: Number,
+    },
+    minPrice: {
+      type: Number,
+    },
+    maxPrice: {
+      type: Number,
+    },
+    imageUrl: {
+      type: String,
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

@@ -27,6 +27,7 @@
         </div>
         <search-overlay
           :active="overlayActive"
+          :searchText="searchText"
           @hide="hideOverlay($event)"
         ></search-overlay>
         <div class="search__recent">
@@ -55,15 +56,28 @@
 
 <script>
 import SearchOverlay from "./SearchOverlay.vue";
+import { computed, provide, ref } from "vue";
 export default {
   components: { SearchOverlay },
   name: "HeaderView",
+  setup() {
+    const searchText = ref("");
+    provide("searchText", searchText);
+    return {
+      searchText
+    }
+  },
   data() {
     return {
-      searchText: "",
-      overlayActive: true,
+      // searchText: "отривин",
+      overlayActive: false,
     };
   },
+  // provide() {
+  //   return {
+  //     searchText: computed(() => this.searchText),
+  //   };
+  // },
   methods: {
     openResultsPage() {},
     hideOverlay(event) {
