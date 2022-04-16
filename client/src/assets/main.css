@@ -1,0 +1,95 @@
+@font-face {
+    font-family: 'Mont';
+    src: local('Mont Bold'), local('Mont-Bold'), url('@/assets/fonts/Mont-Bold.ttf') format('truetype'), 
+        url('@/assets/fonts/Mont-Bold.woff2') format('woff2'),
+        url('@/assets/fonts/Mont-Bold.woff') format('woff');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Mont';
+    src: local('Mont SemiBold'), local('Mont-SemiBold'), url('@/assets/fonts/Mont-SemiBold.ttf') format('truetype'), 
+        url('@/assets/fonts/Mont-SemiBold.woff2') format('woff2'),
+        url('@/assets/fonts/Mont-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Mont';
+    src: local('Mont Regular'), local('Mont-Regular'), url('@/assets/fonts/Mont-Regular.ttf') format('truetype'), 
+        url('@/assets/fonts/Mont-Regular.woff2') format('woff2'),
+        url('@/assets/fonts/Mont-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Mont';
+    src: local('Mont Light'), local('Mont-Light'), url('@/assets/fonts/Mont-Light.ttf') format('truetype'), 
+        url('@/assets/fonts/Mont-Light.woff2') format('woff2'),
+        url('@/assets/fonts/Mont-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Remove default padding */
+ul[class],
+ol[class] {
+    padding: 0;
+}
+
+/* Remove default margin */
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+ul[class],
+ol[class],
+li,
+figure,
+figcaption,
+blockquote,
+dl,
+dd {
+    margin: 0;
+}
+
+ul[class],
+ol[class] {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+article > * + * {
+    margin-top: 1em;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    padding: 0;
+    border: none;
+    font: inherit;
+    color: inherit;
+    background-color: transparent;
+    cursor: pointer;
+}
