@@ -1,9 +1,9 @@
 <template>
   <!-- <header class="header"> -->
   <div class="header__wrapper">
-    <a class="logo" href="#">
+    <router-link to="/" class="logo">
       <img alt="medicus logo" :src="require('@/assets/img/logo.svg')" />
-    </a>
+    </router-link>
     <div class="search">
       <button class="search__alphabet">А-Я</button>
       <div class="search__box">

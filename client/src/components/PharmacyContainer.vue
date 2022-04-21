@@ -36,18 +36,18 @@ import PharmacyCard from "./UI/PharmacyCard.vue";
 import PharmacyCardSceleton from "./UI/PharmacyCardSceleton.vue";
 export default {
   components: { PharmacyCard, PharmacyCardSceleton },
+  props: ["productId"],
   data() {
     return {
-      productId: this.$route.params.id,
       stocks: [],
       isLoading: false,
     };
   },
   created() {
     this.$watch(
-      () => this.$route.params.id,
+      () => this.productId,
       () => {
-        this.fetchStocks(this.$route.params.id);
+        this.fetchStocks(this.productId);
       },
       { immediate: true }
     );
@@ -65,7 +65,7 @@ export default {
         setTimeout(() => {
           this.stocks = response.data;
           this.isLoading = false;
-        }, 1000);
+        }, 2000);
       } catch (e) {
         console.log(e);
       }
@@ -76,9 +76,6 @@ export default {
       }
       return false;
     },
-  },
-  async mounted() {
-    await this.fetchStocks(this.productId);
   },
 };
 </script>
