@@ -1,23 +1,5 @@
 <template>
-  <!-- <div class="results-item">
-    <div class="results-item__left">
-      <img
-        :src="require('@/assets/img/photo.png')"
-        alt=""
-        class="results-item__img"
-      />
-      <div class="results-item__text">
-        <h3 class="results-item__title">Оциллококцинум</h3>
-        <p class="results-item__description">
-          гранулы гомеопатические, 1 г, 6 шт.
-        </p>
-      </div>
-    </div>
-    <p class="results-item__offers">2 600 (120)</p>
-    <p class="results-item__prices-range">69 ... 3 603</p>
-    <a class="results-item__btn"></a>
-  </div> -->
-  <div class="results-item">
+  <router-link class="results-item" :to="productUrl">
     <div class="results-item__left">
       <img :src="imageUrl" alt="" class="results-item__img" />
       <div class="results-item__text">
@@ -29,15 +11,20 @@
     </div>
     <p class="results-item__offers" v-if="offers">{{ offers }}</p>
     <p class="results-item__offers" v-else>Нет в наличии</p>
-    <p class="results-item__prices-range" v-if="minPrice">{{ minPrice }} ... {{ maxPrice }}</p>
+    <p class="results-item__prices-range" v-if="minPrice">
+      {{ minPrice }} ... {{ maxPrice }}
+    </p>
     <p class="results-item__prices-range" v-else>—</p>
     <a class="results-item__btn"></a>
-  </div>
+  </router-link>
 </template>
 <script>
 export default {
   name: "OverlayProductCard",
   props: {
+    productId: {
+      type: String,
+    },
     title: {
       type: String,
     },
@@ -55,6 +42,11 @@ export default {
     },
     imageUrl: {
       type: String,
+    },
+  },
+  computed: {
+    productUrl() {
+      return `/products/product-${this.productId}`;
     },
   },
 };

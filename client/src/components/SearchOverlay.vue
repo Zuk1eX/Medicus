@@ -17,40 +17,23 @@
           <p class="head__title head__title--open">Открыть</p>
         </div>
         <div class="results__items">
-          <Suspense>
-            <template #default>
-              <overlay-container></overlay-container>
-            </template>
-            <template #fallback>
-              <overlay-product-card-sceleton
-                v-for="item in 3"
-                :key="item"
-              ></overlay-product-card-sceleton>
-            </template>
-          </Suspense>
+          <overlay-container></overlay-container>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import OverlayProductCardSceleton from "./UI/OverlayProductCardSceleton.vue";
 import OverlayContainer from "./OverlayContainer.vue";
 export default {
-  components: { OverlayProductCardSceleton, OverlayContainer },
+  components: { OverlayContainer },
   props: {
     active: {
       type: Boolean,
     },
-    searchText: {
-      type: String,
-    },
   },
   data() {
-    return {
-      loading: false,
-      products: [],
-    };
+    return {};
   },
   methods: {},
   computed: {
@@ -74,12 +57,6 @@ export default {
   visibility: hidden;
   transition: visibility 0.1s ease-in-out, opacity 0.1s ease-in-out;
 
-  // &--show {
-  //   visibility: visible;
-  //   transition: all 1s ease-in-out;
-  //   opacity: 1;
-  // }
-
   &__container {
     background: #ffffff;
     border-radius: 16px;
@@ -89,29 +66,30 @@ export default {
     margin-top: 150px;
     z-index: 13;
     max-height: 420px;
-    padding: 20px;
     padding-right: 9px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    border: 20px solid white;
+    border-right: 9px solid #ffffff;
 
     &::-webkit-scrollbar {
       width: 11px;
     }
 
     &::-webkit-scrollbar-track {
-      // background-color: rgba(86, 128, 233, 0.3);
-      border-top-width: 50px;
-      border-bottom-width: 10px;
+      background-color: rgba(86, 128, 233, 0.3);
+      background-clip: content-box;
+      border: 2px solid transparent;
+      border-radius: 5px;
     }
 
     &::-webkit-scrollbar-thumb {
       background-color: #5680e9;
-      border-top-width: 10px;
-      border-bottom-width: 10px;
-      border-radius: 1px;
+      border-radius: 5px;
       background-clip: content-box;
-      border-right: 6px solid transparent;
-      border-top: 20px solid transparent;
-      border-bottom: 20px solid transparent;
+      border-right: 2px solid transparent;
+      border-top: 2px solid transparent;
+      border-bottom: 2px solid transparent;
+      border-left: 2px solid transparent;
     }
   }
 
@@ -139,6 +117,9 @@ export default {
     display: flex;
     justify-content: space-between;
     gap: 20px;
+    position: sticky;
+    top: 0;
+    background-color: #ffffff;
   }
 
   &__items {

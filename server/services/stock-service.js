@@ -8,7 +8,7 @@ class StockService {
     async getStocksByProductId(id) {
         const stocks = await stockModel
             .find({ product: id })
-            .populate(["product", "pharmacy"]);
+            .populate(["pharmacy"]);
         return stocks;
     }
 

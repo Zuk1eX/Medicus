@@ -1,7 +1,5 @@
 <template>
-  <div class="app">
-    <router-view></router-view>
-  </div>
+  <router-view></router-view>
 </template>
 
 <script>
@@ -11,7 +9,7 @@ export default {};
 <style lang="scss">
 @import url("@/assets/main.css");
 body {
-  font-family: "Mont";
+  font-family: "Mont", sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 16px;
@@ -22,5 +20,9 @@ body {
 .container {
   max-width: 1275px;
   margin: 0 auto;
+}
+
+.bold {
+  font-weight: 600;
 }
 </style>

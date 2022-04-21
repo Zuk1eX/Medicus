@@ -1,18 +1,19 @@
 <template>
-  <header class="header">
-    <div class="header__wrapper">
-      <a class="logo" href="#">
-        <img alt="medicus logo" :src="require('@/assets/img/logo.svg')" />
-      </a>
-      <div class="search">
-        <button class="search__alphabet">А-Я</button>
-        <div class="search__box">
-          <form class="search__form" @submit.prevent="openResultsPage">
-            <img
-              alt="search icon"
-              class="search__icon"
-              :src="require('@/assets/img/search_icon.svg')"
-            />
+  <!-- <header class="header"> -->
+  <div class="header__wrapper">
+    <a class="logo" href="#">
+      <img alt="medicus logo" :src="require('@/assets/img/logo.svg')" />
+    </a>
+    <div class="search">
+      <button class="search__alphabet">А-Я</button>
+      <div class="search__box">
+        <form class="search__form" @submit.prevent="openResultsPage">
+          <img
+            alt="search icon"
+            class="search__icon"
+            :src="require('@/assets/img/search_icon.svg')"
+          />
+          <keep-alive>
             <input
               class="search__input"
               placeholder="Начните вводить наименование или штрих-код лекарства..."
@@ -22,41 +23,41 @@
               @focus="showOverlay"
               @blur.stop="hideOverlay($event)"
             />
-            <button class="search__btn" type="submit">Найти</button>
-          </form>
-        </div>
-        <search-overlay
-          :active="overlayActive"
-          :searchText="searchText"
-          @hide="hideOverlay($event)"
-        ></search-overlay>
-        <div class="search__recent">
-          <button class="recent__btn">Отривин</button>
-          <button class="recent__btn">Оциллококцинум</button>
-          <button class="recent__btn">Отривин</button>
-        </div>
+          </keep-alive>
+          <button class="search__btn" type="submit">Найти</button>
+        </form>
       </div>
-      <button class="favourite-btn">
-        <img
-          :src="require('@/assets/img/favourite.svg')"
-          alt=""
-          class="favourite-btn__icon"
-        />
-      </button>
-      <button class="account-btn">
-        <img
-          :src="require('@/assets/img/account.svg')"
-          alt=""
-          class="account-btn__icon"
-        />
-      </button>
+      <search-overlay
+        :active="overlayActive"
+        @hide="hideOverlay($event)"
+      ></search-overlay>
+      <div class="search__recent">
+        <button class="recent__btn">Отривин</button>
+        <button class="recent__btn">Оциллококцинум</button>
+        <button class="recent__btn">Отривин</button>
+      </div>
     </div>
-  </header>
+    <button class="favourite-btn">
+      <img
+        :src="require('@/assets/img/favourite.svg')"
+        alt=""
+        class="favourite-btn__icon"
+      />
+    </button>
+    <button class="account-btn">
+      <img
+        :src="require('@/assets/img/account.svg')"
+        alt=""
+        class="account-btn__icon"
+      />
+    </button>
+  </div>
+  <!-- </header> -->
 </template>
 
 <script>
 import SearchOverlay from "./SearchOverlay.vue";
-import { computed, provide, ref } from "vue";
+import { provide, ref } from "vue";
 export default {
   components: { SearchOverlay },
   name: "HeaderView",
@@ -64,21 +65,31 @@ export default {
     const searchText = ref("");
     provide("searchText", searchText);
     return {
-      searchText
-    }
+      searchText,
+    };
+  },
+  created() {
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  unmounted() {
+    window.removeEventListener("scroll", this.handleScroll);
   },
   data() {
     return {
-      // searchText: "отривин",
       overlayActive: false,
     };
   },
-  // provide() {
-  //   return {
-  //     searchText: computed(() => this.searchText),
-  //   };
-  // },
   methods: {
+    // handleScroll(event) {
+    //   if (
+    //     document.body.scrollTop > 50 ||
+    //     document.documentElement.scrollTop > 50
+    //   ) {
+    //     document.querySelector(".header__wrapper").classList.add("sticky");
+    //   } else {
+    //     document.getElementById(".header__wrapper").classList.remove("sticky");
+    //   }
+    // },
     openResultsPage() {},
     hideOverlay(event) {
       if (
@@ -104,19 +115,31 @@ export default {
         this.overlayActive = false;
       }
     },
+    // overlayActive(value) {
+    //   if (value) {
+    //     // document.body.style.overflow = "hidden";
+    //     console.log(1);
+    //   } else {
+    //     // document.body.style.overflow = "auto";
+    //     console.log(2);
+    //   }
+    // },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .header {
-  width: 100%;
+  // width: 100%;
 
   &__wrapper {
-    min-height: 215px;
+    // z-index: 1;
+    // min-height: 215px;
+    padding: 30px 0 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: #ffffff;
   }
 }
 
@@ -124,6 +147,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin: 0 20px;
+  // flex: 1;
 
   &__box {
     z-index: 13;
@@ -208,7 +232,6 @@ export default {
     display: flex;
     gap: 10px;
     max-width: 950px;
-    overflow: hidden;
   }
 }
 
@@ -222,8 +245,8 @@ export default {
 }
 
 .favourite-btn {
-  width: 56px;
-  height: 56px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   background-color: #5680e9;
 
@@ -235,8 +258,8 @@ export default {
 }
 
 .account-btn {
-  width: 56px;
-  height: 56px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   background-color: #5680e9;
 

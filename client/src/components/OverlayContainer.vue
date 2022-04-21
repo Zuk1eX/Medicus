@@ -1,75 +1,85 @@
 <template>
-  <overlay-product-card
-    v-for="product in products"
-    :key="product.id"
-    :title="product.title"
-    :descr="product.description"
-    :offers="product.allPharmaciesCount"
-    :min-price="product.minPrice"
-    :max-price="product.maxPrice"
-    :image-url="product.imageUrl"
-  ></overlay-product-card>
+  <div v-show="products.length">
+    <overlay-product-card
+      v-for="product in products"
+      :key="product.id"
+      :product-id="product.id"
+      :title="product.title"
+      :descr="product.description"
+      :offers="product.allPharmaciesCount"
+      :min-price="product.minPrice"
+      :max-price="product.maxPrice"
+      :image-url="product.imageUrl"
+    ></overlay-product-card>
+  </div>
+  <div v-show="!products.length && !isLoading" class="empty-results">
+    Результатов по запросу не найдено
+  </div>
+  <div v-show="isLoading">
+    <overlay-product-card-sceleton
+      v-for="item in 3"
+      :key="item"
+    ></overlay-product-card-sceleton>
+  </div>
 </template>
 <script>
-import { ref } from "@vue/reactivity";
 import axios from "axios";
 import { inject } from "@vue/runtime-core";
 import OverlayProductCard from "./UI/OverlayProductCard.vue";
-
-const fetchSearchResults = async (searchText) => {
-  return axios.get("http://localhost:5000/api/search", {
-    params: {
-      text: searchText,
-      limit: 5,
-    },
-  });
-};
+import OverlayProductCardSceleton from "./UI/OverlayProductCardSceleton.vue";
 
 export default {
-  components: { OverlayProductCard },
+  components: { OverlayProductCard, OverlayProductCardSceleton },
   name: "OverlayContainer",
-  //   props: {
-  //     searchText: {
-  //       type: String,
-  //     },
-  //   },
-  async setup() {
+  setup() {
     const searchText = inject("searchText");
-    const products = ref([]);
     return {
       searchText,
-      products,
     };
   },
   data() {
     return {
       searchTimer: null,
+      isLoading: true,
+      products: [],
     };
   },
-  //   inject: ["searchText"],
   methods: {
-    // async fetchSearchResults() {
-    //   //   this.loading = true;
-    //   return axios.get("http://localhost:5000/api/search", {
-    //     params: {
-    //       text: this.searchText.value,
-    //       limit: 5,
-    //     },
-    //   });
-    //   //   this.products = results;
-    // },
+    async fetchSearchResults(searchText) {
+      return axios.get("http://localhost:5000/api/search", {
+        params: {
+          text: searchText,
+          limit: 5,
+        },
+      });
+    },
   },
   watch: {
-    searchText() {
-      clearTimeout(this.searchTimer);
-      this.searchTimer = setTimeout(async () => {
-        this.products = await fetchSearchResults(this.searchText).then(
-          (response) => response.data
-        );
-      }, 1000);
+    searchText(value) {
+      if (value.length) {
+        this.products.length = 0;
+        this.isLoading = true;
+        clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(async () => {
+          this.products = await this.fetchSearchResults(value).then(
+            (response) => response.data
+          );
+          this.isLoading = false;
+        }, 500);
+      }
     },
   },
 };
 </script>
 <style lang="scss" scoped>
+.empty-results {
+  display: flex;
+  padding: 20px;
+  border-radius: 16px;
+  transition: 0.2s ease-in-out;
+  font-weight: 600;
+  font-size: 18px;
+  justify-content: center;
+  padding-top: 30px;
+}
 </style>
