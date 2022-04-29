@@ -28,11 +28,15 @@
         </div>
         <div class="product-btns">
           <button class="product__favourite"></button>
-          <router-link to="/" class="product__link"
-            >Все формы выпуска</router-link
-          >
-          <router-link to="/" class="product__link">Аналоги</router-link>
-          <router-link to="/" class="product__link">Синонимы</router-link>
+          <button @click="openProductForms" class="product__link">
+            Все формы выпуска
+          </button>
+          <button @click="openProductAnalogs" class="product__link">
+            Аналоги
+          </button>
+          <button @click="openProductSynonims" class="product__link">
+            Синонимы
+          </button>
         </div>
       </div>
     </div>
@@ -41,7 +45,7 @@
 </template>
 <script>
 import axios from "axios";
-import ProductContainerSceleton from './ProductContainerSceleton.vue';
+import ProductContainerSceleton from "./ProductContainerSceleton.vue";
 export default {
   components: { ProductContainerSceleton },
   name: "ProductContainer",
@@ -77,10 +81,37 @@ export default {
         console.log(e);
       }
     },
+    openProductForms() {
+      this.$router.push({
+        name: `ProductForms`,
+        params: { title: this.product["title"] },
+      });
+    },
+    openProductAnalogs() {
+      this.$router.push({
+        name: `ProductAnalogs`,
+        params: { pharmgroup: this.product["pharmgroup"] },
+      });
+    },
+    openProductSynonims() {
+      this.$router.push({
+        name: `ProductSynonims`,
+        params: { inn: this.product["inn"] },
+      });
+    },
   },
   computed: {
     fullTitle() {
       return `${this.product.title}, ${this.product.form}, ${this.product.dosage}, ${this.product.quantity}`;
+    },
+    productFormsUrl() {
+      return `/products/product-${this.productId}/forms`;
+    },
+    productAnalogsUrl() {
+      return `/products/product-${this.productId}/analogs`;
+    },
+    productSynonimsUrl() {
+      return `/products/product-${this.productId}/synonims`;
     },
   },
 };

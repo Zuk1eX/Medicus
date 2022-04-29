@@ -2,10 +2,11 @@ const mongoose = require("mongoose");
 const pharmacyModel = require("./models/pharmacy-model");
 const stockModel = require("./models/stock-model");
 const productModel = require("./models/product-model");
+const { product } = require("./controllers/product-controller");
 
 // ProductSchema.plugin(mongoose_fuzzy_searching.default, { fields: ["title"] });
 
-mongoose.connect("mongodb+srv://test:test@cluster0.fty8y.mongodb.net/medicus", {
+mongoose.connect("mongodb://127.0.0.1:27017/medicus", {
     useNewUrlParser: true,
     useUnifiedtopology: true,
 });
@@ -225,8 +226,87 @@ mongoose.connect("mongodb+srv://test:test@cluster0.fty8y.mongodb.net/medicus", {
 //     .then(console.log("OK"))
 //     .catch((e) => console.log(e));
 
-stockModel
-    .find({ product: '6255db61396eaa293263a916' }, { price: 1, _id: 0 })
-    .sort({ price: 1 })
+// stockModel
+//     .find({ product: '6255db61396eaa293263a916' }, { price: 1, _id: 0 })
+//     .sort({ price: 1 })
 
-    .then((data) => console.log(data[0].price, data.slice(-1)[0].price));
+//     .then((data) => console.log(data[0].price, data.slice(-1)[0].price));
+
+// stockModel
+//     // .find({})
+//     // .populate(["product", "pharmacy"])
+//     .aggregate([
+//         {
+//             $lookup: {
+//                 from: "products",
+//                 localField: "product",
+//                 foreignField: "_id",
+//                 as: "product",
+//             },
+//         },
+//         {
+//             $lookup: {
+//                 from: "pharmacies",
+//                 localField: "pharmacy",
+//                 foreignField: "_id",
+//                 as: "pharmacy",
+//             },
+//         },
+//         { $unwind: { path: "$product" } },
+//         { $unwind: { path: "$pharmacy" } },
+//         {
+//             $group: {
+//                 _id: "$product._id",
+//                 allPharmaciesCount: { $sum: 1 },
+//             },
+//         },
+//         // { $count: "allPharmaciesCount" },
+//     ])
+//     .then((data) => console.log(data));
+
+stockModel
+    // .find({})
+    // .populate(["product", "pharmacy"])
+    .aggregate([
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "product",
+            },
+        },
+        {
+            $lookup: {
+                from: "pharmacies",
+                localField: "pharmacy",
+                foreignField: "_id",
+                as: "pharmacy",
+            },
+        },
+        { $unwind: { path: "$product" } },
+        { $unwind: { path: "$pharmacy" } },
+        // {
+        //     $group: {
+        //         _id: {
+        //             productId: "$product._id",
+        //             title: "$product.title",
+        //             form: "$product.form",
+        //             dosage: "$product.dosage",
+        //             quantity: "$product.quantity",
+        //             vendor: "$product.vendor",
+        //             inn: "$product.inn",
+        //             pharmgroup: "$product.pharmgroup",
+        //             imageUrl: "$product.imageUrl",
+        //             views: "$product.views",
+        //             rating: "$product.rating",
+        //         },
+        //         minPrice: { $min: "$price" },
+        //         maxPrice: { $max: "$price" },
+        //         avgPrice: { $avg: "$price" },
+        //         allPharmaciesCount: { $sum: 1 },
+        //     },
+        // },
+        // { $count: "allPharmaciesCount" },
+    ])
+    .then((data) => console.log(data));

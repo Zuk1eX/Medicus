@@ -35,9 +35,13 @@ class ProductController {
                 limit = 0,
                 page = 1,
                 sort = "views",
-                direction = 1,
+                direction = "desc",
             } = req.query;
-            direction = -1 ? "desc" : 1;
+            if (direction === "desc") {
+                direction = -1;
+            } else {
+                direction = 1;
+            }
             const products = await productService.getAllProducts(
                 limit,
                 page - 1,
@@ -81,13 +85,17 @@ class ProductController {
     async forms(req, res, next) {
         try {
             const { id } = req.params;
+            let { sort, direction } = req.query;
+            direction = direction === "desc" ? -1 : 1;
             const product = await productService.getProductById(id);
             if (!product) {
                 return res.status(404).json({ message: "Product not found" });
             }
             const forms = await productService.getForms(
                 product.title,
-                product.vendor.title
+                product.vendor.title,
+                sort,
+                direction
             );
             return res.json(forms);
         } catch (e) {

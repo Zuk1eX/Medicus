@@ -75,11 +75,14 @@ class ProductService {
         return products;
     }
 
-    async getForms(title, vendor) {
-        const products = await productModel.find({
-            title,
-            "vendor.title": vendor,
-        });
+    async getForms(title, vendor, sort, direction) {
+        console.log(arguments)
+        const products = await productModel
+            .find({
+                title,
+                "vendor.title": vendor,
+            })
+            .sort({ [sort]: direction });
         return products;
     }
 }

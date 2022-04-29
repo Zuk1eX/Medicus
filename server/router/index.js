@@ -11,6 +11,16 @@ const stockController = require("../controllers/stock-controller");
 // product-analogs-page: get /products/product-:id/analogs
 // product-synonims-page: get /products/product-:id/synonims
 
+// MainPage = {
+//     components: [ SearchBox (Vuex [default/mini]), (SectionSlider)x2 ],
+//     queries: [ GET ]
+// }
+
+// SearchBox = { <...> + SearchOverlay (Vuex [on/off]) }
+// SearchOverlay = { <...> + SearchOverlayContainer }
+// SearchOverlayContainer = { OverlayProductCard / OverlayProductCardSceleton }
+// SectionSlider = { SectionTitle + <...> + (ProductCard)x4(min) }
+
 const router = new Router();
 
 router.get("/", (req, res) => {
@@ -29,5 +39,7 @@ router.get("/products/product-:id/synonims", productController.synonims);
 router.get("/stocks", stockController.stocks);
 
 router.get("/search", productController.search);
+
+router.get("/test", stockController.TEST_STOCKS);
 
 module.exports = router;

@@ -70,8 +70,8 @@ export default {
         console.log(e);
       }
     },
-    isAllDay({ 1: monday }) {
-      if (monday.open === monday.close) {
+    isAllDay(workingHoursArray) {
+      if (workingHoursArray[0].open == workingHoursArray[0].close) {
         return true;
       }
       return false;
@@ -102,8 +102,5 @@ export default {
   background: #5680e9;
   border-radius: 50vmin;
   margin-bottom: 30px;
-}
-
-.empty-results {
 }
 </style>

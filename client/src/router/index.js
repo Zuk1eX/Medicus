@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from "vue-router";
 import MainPage from "@/views/MainPage";
 import ProductPage from "@/views/ProductPage";
 import SearchResultsPage from "@/views/SearchResultsPage";
+import ProductFormsPage from "@/views/ProductFormsPage";
+import ProductAnalogsPage from "@/views/ProductAnalogsPage";
+import ProductSynonimsPage from "@/views/ProductSynonimsPage";
 
 const routes = [
   {
@@ -15,6 +18,21 @@ const routes = [
   {
     path: "/products/product-:id",
     component: ProductPage,
+  },
+  {
+    path: "/products/product-:id/forms",
+    name: "ProductForms",
+    component: ProductFormsPage,
+  },
+  {
+    path: "/products/product-:id/analogs",
+    name: "ProductAnalogs",
+    component: ProductAnalogsPage,
+  },
+  {
+    path: "/products/product-:id/synonims",
+    name: "ProductSynonims",
+    component: ProductSynonimsPage,
   },
 ];
 
