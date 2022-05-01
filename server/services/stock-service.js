@@ -1,74 +1,338 @@
 const { Types } = require("mongoose");
+const Fuse = require("fuse.js");
+
 const stockModel = require("../models/stock-model");
 const productModel = require("../models/product-model");
 const pharmacyModel = require("../models/pharmacy-model");
+const uniStocksService = require("./uni-stocks-service");
+
+const stocksResultsProject = [
+    {
+        $project: {
+            _id: 1,
+            fullTitle: {
+                $concat: [
+                    "$title",
+                    ", ",
+                    "$form",
+                    ", ",
+                    "$dosage",
+                    ", ",
+                    "$quantity",
+                ],
+            },
+            fullVendor: {
+                $concat: ["$vendor.title", ", ", "$vendor.country"],
+            },
+            imageUrl: 1,
+            rating: 1,
+            minPrice: 1,
+            stocksCount: { $add: ["$stocksCount", -1] },
+        },
+    },
+];
 
 class StockService {
-    async getAllStocks() {}
-
-    async getStocksByProductId(id) {
-        // const stocks = await stockModel
-        //     .find({ product: id })
-        //     .populate(["pharmacy", "product"]);
-        // return stocks;
-
-        const stocks = await stockModel.aggregate([
-            {
-                $match: {
-                    product: Types.ObjectId(id),
+    async getAllStocks(sort, direction, limit, offset) {
+        const stocks = await uniStocksService.stocksAggregateProduct().facet({
+            results: [
+                { $sort: { [sort]: direction } },
+                ...stocksResultsProject,
+                { $skip: offset },
+                { $limit: limit },
+            ],
+            total: [
+                {
+                    $count: "resultsCount",
                 },
-            },
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "product",
-                    foreignField: "_id",
-                    as: "product",
-                },
-            },
-            {
-                $lookup: {
-                    from: "pharmacies",
-                    localField: "pharmacy",
-                    foreignField: "_id",
-                    as: "pharmacy",
-                },
-            },
-            { $unwind: { path: "$product" } },
-            { $unwind: { path: "$pharmacy" } },
-            // {
-            //     $group: {
-            //         _id: "$product._id",
-            //         allPharmaciesCount: { $sum: 1 },
-            //     },
-            // },
-        ]);
+            ],
+        });
         return stocks;
     }
 
-    async getStocksByPharmacyId(id) {}
-
-    async getAllPharmaciesCount(id) {
-        const allPharmaciesCount = await stockModel.count({ product: id });
-        return allPharmaciesCount;
-    }
-
-    async getSpecificPrice(id, spec = "min") {
-        const sorter = spec === "max" ? -1 : 1;
-        const price = await stockModel
-            .findOne({ product: id }, { price: 1, _id: 0 })
-            .sort({ price: sorter });
-        return price?.price ?? null;
-    }
-
-    async getMinMaxPrices(id) {
-        const prices = await stockModel
-            .find({ product: id }, { price: 1, _id: 0 })
-            .sort({ price: 1 });
-        return {
-            minPrice: prices[0]?.price ?? null,
-            maxPrice: prices.slice(-1)[0]?.price ?? null,
+    async getAllStocksByQuery(text, sort, direction, limit, offset) {
+        const fuseOptions = {
+            treshold: 0.5,
+            keys: ["title"],
         };
+        const stocks = await uniStocksService
+            .stocksAggregateProduct()
+            .sort({ [sort]: direction })
+            .project({
+                _id: 1,
+                title: 1,
+                description: {
+                    $concat: ["$form", ", ", "$dosage", ", ", "$quantity"],
+                },
+                imageUrl: 1,
+                minPrice: 1,
+                maxPrice: 1,
+                stocksCount: { $add: ["$stocksCount", -1] },
+            });
+        const fuseSearch = new Fuse(stocks, fuseOptions);
+        const resultStocks = fuseSearch.search(text);
+        const limitedResultStocks = resultStocks.slice(offset, offset + limit);
+        return [
+            {
+                results: limitedResultStocks,
+                total: { resultsCount: resultStocks.length },
+            },
+        ];
+    }
+
+    async getAllStocksByTitleVendor(
+        title,
+        vendor,
+        sort,
+        direction,
+        limit,
+        offset
+    ) {
+        const stocks = await uniStocksService.stocksAggregateProduct().facet({
+            results: [
+                {
+                    $match: {
+                        title: title,
+                        "vendor.title": vendor,
+                    },
+                },
+                { $sort: { [sort]: direction } },
+                ...stocksResultsProject,
+                { $skip: offset },
+                { $limit: limit },
+            ],
+            total: [
+                {
+                    $match: {
+                        title: title,
+                        "vendor.title": vendor,
+                    },
+                },
+                { $count: "resultsCount" },
+            ],
+        });
+        return stocks;
+    }
+
+    async getAllStocksByPharmgroup(pharmgroup, sort, direction, limit, offset) {
+        const stocks = await uniStocksService.stocksAggregateProduct().facet({
+            results: [
+                {
+                    $match: {
+                        pharmgroup: pharmgroup,
+                    },
+                },
+                { $sort: { [sort]: direction } },
+                {
+                    $project: {
+                        _id: 1,
+                        fullTitle: {
+                            $concat: [
+                                "$title",
+                                ", ",
+                                "$form",
+                                ", ",
+                                "$dosage",
+                                ", ",
+                                "$quantity",
+                            ],
+                        },
+                        fullVendor: {
+                            $concat: ["$vendor.title", ", ", "$vendor.country"],
+                        },
+                        imageUrl: 1,
+                        rating: 1,
+                        minPrice: 1,
+                        stocksCount: { $add: ["$stocksCount", -1] },
+                    },
+                },
+                { $skip: offset },
+                { $limit: limit },
+            ],
+            total: [
+                {
+                    $match: {
+                        pharmgroup: pharmgroup,
+                    },
+                },
+                { $count: "resultsCount" },
+            ],
+        });
+        return stocks;
+    }
+
+    async getAllStocksByInn(inn, sort, direction, limit, offset) {
+        const stocks = await uniStocksService.stocksAggregateProduct().facet({
+            results: [
+                {
+                    $match: {
+                        inn: inn,
+                    },
+                },
+                { $sort: { [sort]: direction } },
+                ...stocksResultsProject,
+                { $skip: offset },
+                { $limit: limit },
+            ],
+            total: [
+                {
+                    $match: {
+                        inn: inn,
+                    },
+                },
+                { $count: "resultsCount" },
+            ],
+        });
+        return stocks;
+    }
+
+    async getAllStocksByPharmacyId(id, sort, direction, limit, offset) {
+        const stocks = await stockModel
+            .aggregate([
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "product",
+                        foreignField: "_id",
+                        as: "product",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "pharmacies",
+                        localField: "pharmacy",
+                        foreignField: "_id",
+                        as: "pharmacy",
+                    },
+                },
+                { $unwind: { path: "$product" } },
+                { $unwind: { path: "$pharmacy" } },
+                {
+                    $group: {
+                        _id: "$pharmacy._id",
+                        title: { $first: "$pharmacy.title" },
+                        region: { $first: "$pharmacy.region" },
+                        address: { $first: "$pharmacy.address" },
+                        metro: { $first: "$pharmacy.metro" },
+                        location: { $first: "$pharmacy.location" },
+                        workingHours: { $first: "$pharmacy.workingHours" },
+                        phone: { $first: "$pharmacy.phone" },
+                        site: { $first: "$pharmacy.site" },
+                        email: { $first: "$pharmacy.email" },
+                        stock: {
+                            $push: {
+                                $mergeObjects: [
+                                    "$product",
+                                    { price: "$price" },
+                                    { isStocked: "$isStocked" },
+                                    { isDiscounted: "$isDiscounted" },
+                                ],
+                            },
+                        },
+                    },
+                },
+                {
+                    $set: {
+                        stock: {
+                            $sortArray: {
+                                input: "$stock",
+                                sortBy: { [sort]: direction },
+                            },
+                        },
+                    },
+                },
+                { $unwind: "$stock" },
+                {
+                    $match: {
+                        "pharmacy.title": { $ne: "admin" },
+                        _id: Types.ObjectId(id),
+                    },
+                },
+            ])
+            .facet({
+                pharmacy: [
+                    {
+                        $project: {
+                            _id: 1,
+                        },
+                    },
+                    { $limit: 1 },
+                ],
+                stocks: [
+                    {
+                        $project: {
+                            _id: 0,
+                            stock: 1,
+                        },
+                    },
+                    { $skip: offset },
+                    { $limit: limit },
+                ],
+                total: [{ $count: "stocksCount" }],
+            });
+        return stocks;
+    }
+
+    async getAllStocksByProductId(id, sort, direction, limit, offset) {
+        const stocks = await stockModel
+            .aggregate([
+                {
+                    $match: {
+                        product: Types.ObjectId(id),
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "product",
+                        foreignField: "_id",
+                        as: "product",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "pharmacies",
+                        localField: "pharmacy",
+                        foreignField: "_id",
+                        as: "pharmacy",
+                    },
+                },
+                { $unwind: { path: "$product" } },
+                { $unwind: { path: "$pharmacy" } },
+                {
+                    $match: {
+                        "pharmacy.title": { $ne: "admin" },
+                    },
+                },
+                { $sort: { [sort]: direction } },
+                {
+                    $project: {
+                        _id: 1,
+                        "pharmacy._id": 1,
+                        "pharmacy.fullAddress": {
+                            $concat: [
+                                "$pharmacy.region",
+                                ", ",
+                                "$pharmacy.address",
+                            ],
+                        },
+                        "pharmacy.metro": 1,
+                        "pharmacy.phone": 1,
+                        "pharmacy.site": 1,
+                        "pharmacy.email": 1,
+                        "pharmacy.location": 1,
+                        "pharmacy.workingHours": 1,
+                        isStocked: 1,
+                        isDiscounted: 1,
+                        price: 1,
+                    },
+                },
+            ])
+            .facet({
+                results: [{ $skip: offset }, { $limit: limit }],
+                total: [{ $count: "stocksCount" }],
+            });
+        return stocks;
     }
 }
 

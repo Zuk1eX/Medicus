@@ -1,5 +1,8 @@
+const Fuse = require("fuse.js");
+
 const stockModel = require("../models/stock-model");
 const stockService = require("../services/stock-service");
+const productService = require("../services/product-service");
 
 class StockController {
     async stocks(req, res, next) {
@@ -12,7 +15,248 @@ class StockController {
         }
     }
 
-    async TEST_STOCKS(req, res, next) {
+    async getAllProducts(req, res, next) {
+        try {
+            let {
+                sort = "views",
+                direction = "desc",
+                limit = 16,
+                page = 1,
+            } = req.query;
+            limit = +limit;
+            page = +page;
+            if (["views", "minPrice", "stocksCount"].includes(sort)) {
+                direction = direction === "desc" ? -1 : 1;
+                const products = await stockService.getAllStocks(
+                    sort,
+                    direction,
+                    limit,
+                    limit * (page - 1)
+                );
+                return res.json(products);
+            }
+            return res
+                .status(400)
+                .json({ Error: "Invalid query <sort> parameter" });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async search(req, res, next) {
+        try {
+            let {
+                text,
+                sort = "views",
+                direction = "desc",
+                limit = 5,
+                page = 1,
+            } = req.query;
+            if (!text) {
+                return res
+                    .status(400)
+                    .json({ Error: "Invalid query <text> parameter" });
+            }
+            limit = +limit;
+            page = +page;
+            if (["views", "minPrice", "stocksCount"].includes(sort)) {
+                direction = direction === "desc" ? -1 : 1;
+                const stocks = await stockService.getAllStocksByQuery(
+                    text,
+                    sort,
+                    direction,
+                    limit,
+                    limit * (page - 1)
+                );
+                return res.json(stocks);
+            }
+            return res
+                .status(400)
+                .json({ Error: "Invalid query <sort> parameter" });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getProductForms(req, res, next) {
+        try {
+            const productId = req.params.id;
+            let {
+                sort = "views",
+                direction = "desc",
+                limit = 16,
+                page = 1,
+            } = req.query;
+            limit = +limit;
+            page = +page;
+            if (["views", "minPrice", "stocksCount"].includes(sort)) {
+                direction = direction === "desc" ? -1 : 1;
+                let productData = await productService.getProductById(
+                    productId
+                );
+                if (!productData) {
+                    return res
+                        .status(404)
+                        .json({ Error: "Product with this ID not found" });
+                }
+                const { title, vendor } = productData;
+                productData = await stockService.getAllStocksByTitleVendor(
+                    title,
+                    vendor.title,
+                    sort,
+                    direction,
+                    limit,
+                    limit * (page - 1)
+                );
+                return res.json(productData);
+            }
+            return res
+                .status(400)
+                .json({ Error: "Invalid query <sort> parameter" });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getProductAnalogs(req, res, next) {
+        try {
+            const productId = req.params.id;
+            let {
+                sort = "views",
+                direction = "desc",
+                limit = 16,
+                page = 1,
+            } = req.query;
+            limit = +limit;
+            page = +page;
+            if (["views", "minPrice", "stocksCount"].includes(sort)) {
+                direction = direction === "desc" ? -1 : 1;
+                let productData = await productService.getProductById(
+                    productId
+                );
+                if (!productData) {
+                    return res
+                        .status(404)
+                        .json({ Error: "Product with this ID not found" });
+                }
+                const { pharmgroup } = productData;
+                productData = await stockService.getAllStocksByPharmgroup(
+                    pharmgroup,
+                    sort,
+                    direction,
+                    limit,
+                    limit * (page - 1)
+                );
+                return res.json(productData);
+            }
+            return res
+                .status(400)
+                .json({ Error: "Invalid query <sort> parameter" });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getProductSynonims(req, res, next) {
+        try {
+            const productId = req.params.id;
+            let {
+                sort = "views",
+                direction = "desc",
+                limit = 16,
+                page = 1,
+            } = req.query;
+            limit = +limit;
+            page = +page;
+            if (["views", "minPrice", "stocksCount"].includes(sort)) {
+                direction = direction === "desc" ? -1 : 1;
+                let productData = await productService.getProductById(
+                    productId
+                );
+                if (!productData) {
+                    return res
+                        .status(404)
+                        .json({ Error: "Product with this ID not found" });
+                }
+                const { inn } = productData;
+                productData = await stockService.getAllStocksByInn(
+                    inn,
+                    sort,
+                    direction,
+                    limit,
+                    limit * (page - 1)
+                );
+                return res.json(productData);
+            }
+            return res
+                .status(400)
+                .json({ Error: "Invalid query <sort> parameter" });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getPharmacyPricelist(req, res, next) {
+        try {
+            const pharmacyId = req.params.id;
+            let {
+                sort = "views",
+                direction = "desc",
+                limit = 16,
+                page = 1,
+            } = req.query;
+            limit = +limit;
+            page = +page;
+            if (["views", "price"].includes(sort)) {
+                direction = direction === "desc" ? -1 : 1;
+                const stocks = await stockService.getAllStocksByPharmacyId(
+                    pharmacyId,
+                    sort,
+                    direction,
+                    limit,
+                    limit * (page - 1)
+                );
+                return res.json(stocks);
+            }
+            return res
+                .status(400)
+                .json({ Error: "Invalid query <sort> parameter" });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async getProductStocks(req, res, next) {
+        try {
+            const productId = req.params.id;
+            let {
+                sort = "price",
+                direction = "desc",
+                limit = 25,
+                page = 1,
+            } = req.query;
+            limit = +limit;
+            page = +page;
+            if (["location", "price"].includes(sort)) {
+                direction = direction === "desc" ? -1 : 1;
+                const products = await stockService.getAllStocksByProductId(
+                    productId,
+                    sort,
+                    direction,
+                    limit,
+                    limit * (page - 1)
+                );
+                return res.json(products);
+            }
+            return res
+                .status(400)
+                .json({ Error: "Invalid query <sort> parameter" });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async test(req, res, next) {
         try {
             const stocks = await stockModel
                 // .find()

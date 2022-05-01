@@ -52,6 +52,16 @@ class ProductService {
             const product = await productModel.findById(id);
             return product;
         } catch (e) {
+            return null
+        }
+    }
+
+    async getProductByIdFormat(id) {
+        try {
+            let product = await productModel.findById(id);
+            product = new productDto(product);
+            return product;
+        } catch (e) {
             return null;
         }
     }
@@ -76,7 +86,7 @@ class ProductService {
     }
 
     async getForms(title, vendor, sort, direction) {
-        console.log(arguments)
+        console.log(arguments);
         const products = await productModel
             .find({
                 title,

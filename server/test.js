@@ -6,6 +6,101 @@ const { product } = require("./controllers/product-controller");
 
 // ProductSchema.plugin(mongoose_fuzzy_searching.default, { fields: ["title"] });
 
+/*
+
+getAllStocksByProductId
+
+.facet({
+        //     pharmacy: [
+        //         {
+        //             $project: {
+        //                 _id: 1,
+        //             },
+        //         },
+        //         { $limit: 1 },
+        //     ],
+        //     stocks: [
+        //         {
+        //             $project: {
+        //                 _id: 0,
+        //                 stock: 1,
+        //             },
+        //         },
+        //         { $skip: offset },
+        //         { $limit: limit },
+        //     ],
+        //     total: [{ $count: "stocksCount" }],
+        // });
+        // .facet({
+        //     pharmacy: [
+        //         {
+        //             $project: {
+        //                 _id: 1,
+        //                 title: 1,
+        //                 region: 1,
+        //                 address: 1,
+        //                 metro: 1,
+        //                 location: 1,
+        //                 workingHours: 1,
+        //                 phone: 1,
+        //                 site: 1,
+        //                 email: 1,
+        //             },
+        //         },
+        //         { $limit: 1 },
+        //     ],
+        //     stocks: [
+        //         {
+        //             $project: {
+        //                 _id: 0,
+        //                 stock: 1,
+        //             },
+        //         },
+        //         { $skip: offset },
+        //         { $limit: limit },
+        //     ],
+        //     total: [{ $count: "stocksCount" }],
+        // });
+
+
+    getAllStocksByPharmacyId
+
+    // .facet({
+        //     pharmacy: [
+        //         {
+        //             $project: {
+        //                 _id: 1,
+        //                 title: 1,
+        //                 region: 1,
+        //                 address: 1,
+        //                 metro: 1,
+        //                 location: 1,
+        //                 workingHours: 1,
+        //                 phone: 1,
+        //                 site: 1,
+        //                 email: 1,
+        //             },
+        //         },
+        //         { $limit: 1 },
+        //     ],
+        //     stocks: [
+        //         {
+        //             $project: {
+        //                 _id: 0,
+        //                 stock: 1,
+        //             },
+        //         },
+        //         { $skip: offset },
+        //         { $limit: limit },
+        //     ],
+        //     total: [{ $count: "stocksCount" }],
+        // });
+
+
+    
+
+*/
+
 mongoose.connect("mongodb://127.0.0.1:27017/medicus", {
     useNewUrlParser: true,
     useUnifiedtopology: true,
@@ -264,49 +359,76 @@ mongoose.connect("mongodb://127.0.0.1:27017/medicus", {
 //     ])
 //     .then((data) => console.log(data));
 
+// stockModel
+//     // .find({})
+//     // .populate(["product", "pharmacy"])
+//     .aggregate([
+//         {
+//             $lookup: {
+//                 from: "products",
+//                 localField: "product",
+//                 foreignField: "_id",
+//                 as: "product",
+//             },
+//         },
+//         {
+//             $lookup: {
+//                 from: "pharmacies",
+//                 localField: "pharmacy",
+//                 foreignField: "_id",
+//                 as: "pharmacy",
+//             },
+//         },
+//         { $unwind: { path: "$product" } },
+//         { $unwind: { path: "$pharmacy" } },
+//         // {
+//         //     $group: {
+//         //         _id: {
+//         //             productId: "$product._id",
+//         //             title: "$product.title",
+//         //             form: "$product.form",
+//         //             dosage: "$product.dosage",
+//         //             quantity: "$product.quantity",
+//         //             vendor: "$product.vendor",
+//         //             inn: "$product.inn",
+//         //             pharmgroup: "$product.pharmgroup",
+//         //             imageUrl: "$product.imageUrl",
+//         //             views: "$product.views",
+//         //             rating: "$product.rating",
+//         //         },
+//         //         minPrice: { $min: "$price" },
+//         //         maxPrice: { $max: "$price" },
+//         //         avgPrice: { $avg: "$price" },
+//         //         allPharmaciesCount: { $sum: 1 },
+//         //     },
+//         // },
+//         // { $count: "allPharmaciesCount" },
+//     ])
+//     .then((data) => console.log(data));
+
+// let ids;
+// (async () => {
+//     await productModel
+//         .aggregate([{ $project: { _id: 1 } }])
+//         .then((data) => (ids = data));
+//     console.log(ids);
+//     ids.forEach(async (element) => {
+//         await stockModel.insertMany([
+//             {
+//                 product: element._id,
+//                 pharmacy: "626c2799d21fd9706c9f13dc",
+//                 price: 0,
+//                 isStocked: false,
+//             },
+//         ]);
+//     });
+// })();
+
+// stockModel.updateMany(
+//     {pharmacy: '626c2799d21fd9706c9f13dc'},
+//     {$unset: {isStocked: 1, isDiscounted: 1}}
+// ).then(console.log('OK'))
+
 stockModel
-    // .find({})
-    // .populate(["product", "pharmacy"])
-    .aggregate([
-        {
-            $lookup: {
-                from: "products",
-                localField: "product",
-                foreignField: "_id",
-                as: "product",
-            },
-        },
-        {
-            $lookup: {
-                from: "pharmacies",
-                localField: "pharmacy",
-                foreignField: "_id",
-                as: "pharmacy",
-            },
-        },
-        { $unwind: { path: "$product" } },
-        { $unwind: { path: "$pharmacy" } },
-        // {
-        //     $group: {
-        //         _id: {
-        //             productId: "$product._id",
-        //             title: "$product.title",
-        //             form: "$product.form",
-        //             dosage: "$product.dosage",
-        //             quantity: "$product.quantity",
-        //             vendor: "$product.vendor",
-        //             inn: "$product.inn",
-        //             pharmgroup: "$product.pharmgroup",
-        //             imageUrl: "$product.imageUrl",
-        //             views: "$product.views",
-        //             rating: "$product.rating",
-        //         },
-        //         minPrice: { $min: "$price" },
-        //         maxPrice: { $max: "$price" },
-        //         avgPrice: { $avg: "$price" },
-        //         allPharmaciesCount: { $sum: 1 },
-        //     },
-        // },
-        // { $count: "allPharmaciesCount" },
-    ])
+    .find({ product: "6255db61396eaa293263a916" }, { _id: 1 })
     .then((data) => console.log(data));
