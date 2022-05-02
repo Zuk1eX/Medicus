@@ -104,56 +104,68 @@ class UniStocksService {
         ]);
     }
 
-    // stocksAggregatePharmacy(id) {
-    //     return stockModel.aggregate([
-    //         {
-    //             $lookup: {
-    //                 from: "products",
-    //                 localField: "product",
-    //                 foreignField: "_id",
-    //                 as: "product",
-    //             },
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "pharmacies",
-    //                 localField: "pharmacy",
-    //                 foreignField: "_id",
-    //                 as: "pharmacy",
-    //             },
-    //         },
-    //         { $unwind: { path: "$product" } },
-    //         { $unwind: { path: "$pharmacy" } },
-    //         {
-    //             $group: {
-    //                 _id: "$pharmacy._id",
-    //                 pharmacy: { $first: "$pharmacy" },
-    //                 stocks: {
-    //                     $push: {
-    //                         $mergeObjects: ["$product", { price: "$price" }],
-    //                     },
-    //                 },
-    //                 stocksCount: { $sum: 1 },
-    //             },
-    //         },
-    //         {
-    //             $set: {
-    //                 stocks: {
-    //                     $sortArray: {
-    //                         input: "$stocks",
-    //                         sortBy: { [sort]: direction },
-    //                     },
-    //                 },
-    //             },
-    //         },
-    //         {
-    //             $match: {
-    //                 "pharmacy.title": { $ne: "admin" },
-    //                 _id: Types.ObjectId(id),
-    //             },
-    //         },
-    //     ]);
-    // }
+    stocksByProductId(id, sort, direction) {
+        return stockModel.aggregate([
+            {
+                $match: {
+                    product: Types.ObjectId(id),
+                    isStocked: true,
+                },
+            },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "product",
+                    foreignField: "_id",
+                    as: "product",
+                },
+            },
+            {
+                $lookup: {
+                    from: "pharmacies",
+                    localField: "pharmacy",
+                    foreignField: "_id",
+                    as: "pharmacy",
+                },
+            },
+            { $unwind: { path: "$product" } },
+            { $unwind: { path: "$pharmacy" } },
+            {
+                $match: {
+                    "pharmacy.title": { $ne: "admin" },
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    "pharmacy._id": 1,
+                    "pharmacy.title": 1,
+                    "pharmacy.fullAddress": {
+                        $concat: [
+                            "$pharmacy.region",
+                            ", ",
+                            "$pharmacy.address",
+                        ],
+                    },
+                    "pharmacy.metro": 1,
+                    "pharmacy.phone": 1,
+                    "pharmacy.site": 1,
+                    "pharmacy.email": 1,
+                    "pharmacy.location": 1,
+                    "pharmacy.workingHours": 1,
+                    "pharmacy.is247": 1,
+                    isStocked: 1,
+                    isDiscounted: 1,
+                    price: 1,
+                },
+            },
+            {
+                $facet: {
+                    results: [],
+                },
+            },
+        ]);
+    }
 }
 
 module.exports = new UniStocksService();

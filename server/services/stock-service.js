@@ -1,9 +1,6 @@
 const { Types } = require("mongoose");
 const Fuse = require("fuse.js");
-
 const stockModel = require("../models/stock-model");
-const productModel = require("../models/product-model");
-const pharmacyModel = require("../models/pharmacy-model");
 const uniStocksService = require("./uni-stocks-service");
 
 const stocksResultsProject = [
@@ -274,62 +271,146 @@ class StockService {
     }
 
     async getAllStocksByProductId(id, sort, direction, limit, offset) {
-        const stocks = await stockModel
-            .aggregate([
-                {
-                    $match: {
-                        product: Types.ObjectId(id),
+        const stocks = await uniStocksService.stocksByProductIdSort(
+            id,
+            sort,
+            direction,
+            limit,
+            offset
+        );
+        return stocks;
+    }
+
+    stocksFilterEntry(id, sort, direction, limit, offset) {
+        return uniStocksService.stocksByProductId(
+            id,
+            sort,
+            direction,
+            limit,
+            offset
+        );
+    }
+
+    stocksFilterMinPrice(stocksEntry, minPrice) {
+        return stocksEntry.project({
+            results: {
+                $filter: {
+                    input: "$results",
+                    as: "stock",
+                    cond: { $gte: ["$$stock.price", minPrice] },
+                },
+            },
+        });
+    }
+
+    stocksFilterMaxPrice(stocksEntry, maxPrice) {
+        return stocksEntry.project({
+            results: {
+                $filter: {
+                    input: "$results",
+                    as: "stock",
+                    cond: { $lte: ["$$stock.price", maxPrice] },
+                },
+            },
+        });
+    }
+
+    stocksFilterIsDiscounted(stocksEntry, isDiscounted) {
+        return stocksEntry.project({
+            results: {
+                $filter: {
+                    input: "$results",
+                    as: "stock",
+                    cond: { $eq: ["$$stock.isDiscounted", isDiscounted] },
+                },
+            },
+        });
+    }
+
+    stocksFilterIs247(stocksEntry, is247) {
+        return stocksEntry.project({
+            results: {
+                $filter: {
+                    input: "$results",
+                    as: "stock",
+                    cond: {
+                        $eq: ["$$stock.pharmacy.is247", is247],
                     },
                 },
-                {
-                    $lookup: {
-                        from: "products",
-                        localField: "product",
-                        foreignField: "_id",
-                        as: "product",
+            },
+        });
+    }
+
+    stocksFilterMetro(stocksEntry, metroArray) {
+        return stocksEntry.project({
+            results: {
+                $filter: {
+                    input: "$results",
+                    as: "stock",
+                    // cond: {
+                    //     $in: [...metroArray, "$$stock.pharmacy.metro"],
+                    // },
+                    cond: {
+                        $eq: [
+                            {
+                                $function: {
+                                    body: `function (metroArr, metroArray) {
+                                        return metroArray.some((elem) =>
+                                            metroArr.includes(elem)
+                                        );
+                                    }`,
+                                    args: [
+                                        "$$stock.pharmacy.metro",
+                                        metroArray,
+                                    ],
+                                    lang: "js",
+                                },
+                            },
+                            true,
+                        ],
                     },
                 },
-                {
-                    $lookup: {
-                        from: "pharmacies",
-                        localField: "pharmacy",
-                        foreignField: "_id",
-                        as: "pharmacy",
-                    },
-                },
-                { $unwind: { path: "$product" } },
-                { $unwind: { path: "$pharmacy" } },
-                {
-                    $match: {
-                        "pharmacy.title": { $ne: "admin" },
-                    },
-                },
-                { $sort: { [sort]: direction } },
-                {
-                    $project: {
-                        _id: 1,
-                        "pharmacy._id": 1,
-                        "pharmacy.fullAddress": {
-                            $concat: [
-                                "$pharmacy.region",
-                                ", ",
-                                "$pharmacy.address",
-                            ],
+            },
+        });
+    }
+
+    stocksFilterPharmacy(stocksEntry, pharmacy) {
+        return stocksEntry.project({
+            results: {
+                $filter: {
+                    input: "$results",
+                    as: "stock",
+                    cond: {
+                        $regexMatch: {
+                            input: "$$stock.pharmacy.title",
+                            regex: pharmacy,
+                            options: "i",
                         },
-                        "pharmacy.metro": 1,
-                        "pharmacy.phone": 1,
-                        "pharmacy.site": 1,
-                        "pharmacy.email": 1,
-                        "pharmacy.location": 1,
-                        "pharmacy.workingHours": 1,
-                        isStocked: 1,
-                        isDiscounted: 1,
-                        price: 1,
                     },
                 },
-            ])
+            },
+        });
+    }
+
+    async stocksFilterFinally(stocksEntry, sort, direction, limit, offset) {
+        const stocks = await stocksEntry
+            .append({
+                $project: {
+                    resultsRoot: { $setUnion: ["$results"] },
+                },
+            })
+            .append({
+                $unwind: "$resultsRoot",
+            })
+            .append({
+                $replaceRoot: { newRoot: "$resultsRoot" },
+            })
             .facet({
-                results: [{ $skip: offset }, { $limit: limit }],
+                results: [
+                    { $sort: { [sort]: direction } },
+                    { $skip: offset },
+                    { $limit: limit },
+                ],
                 total: [{ $count: "stocksCount" }],
             });
         return stocks;

@@ -23,8 +23,6 @@ const scheduleSchema = new Schema({
     },
 });
 
-// const workingDaysSchema = new Schema([scheduleSchema]);
-
 const PharmacySchema = new Schema(
     {
         title: {
@@ -48,6 +46,12 @@ const PharmacySchema = new Schema(
         },
         workingHours: {
             type: [scheduleSchema],
+        },
+        is247: {
+            type: Boolean,
+            default: function () {
+                return this.workingHours[0].open == this.workingHours[0].close;
+            },
         },
         phone: {
             type: String,

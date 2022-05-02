@@ -4,6 +4,11 @@ const stockModel = require("../models/stock-model");
 const stockService = require("../services/stock-service");
 const productService = require("../services/product-service");
 
+function isEmptyObject(obj) {
+    for (let i in obj) return false;
+    return true;
+}
+
 class StockController {
     async stocks(req, res, next) {
         try {
@@ -231,28 +236,88 @@ class StockController {
             const productId = req.params.id;
             let {
                 sort = "price",
-                direction = "desc",
+                direction = "asc",
                 limit = 25,
                 page = 1,
+                ...filterArgs
             } = req.query;
             limit = +limit;
             page = +page;
-            if (["location", "price"].includes(sort)) {
-                direction = direction === "desc" ? -1 : 1;
-                const products = await stockService.getAllStocksByProductId(
-                    productId,
-                    sort,
-                    direction,
-                    limit,
-                    limit * (page - 1)
-                );
-                return res.json(products);
+            if (!["location", "price"].includes(sort)) {
+                return res
+                    .status(400)
+                    .json({ Error: "Invalid query <sort> parameter" });
             }
-            return res
-                .status(400)
-                .json({ Error: "Invalid query <sort> parameter" });
+            direction = direction === "asc" ? 1 : -1;
+            let stocks = stockService.stocksFilterEntry(
+                productId,
+                sort,
+                direction,
+                limit,
+                limit * (page - 1)
+            );
+            const checkArray = [
+                "minPrice",
+                "maxPrice",
+                "metro",
+                "is247",
+                "isDiscounted",
+                "pharmacy",
+            ];
+            const checkArgs = Object.keys(filterArgs).some((item) =>
+                checkArray.includes(item)
+            );
+            if (!isEmptyObject(filterArgs) && checkArgs) {
+                stocks = StockController.getProductStocksFilter(
+                    stocks,
+                    filterArgs
+                );
+            }
+            stocks = await stockService.stocksFilterFinally(
+                stocks,
+                sort,
+                direction,
+                limit,
+                limit * (page - 1)
+            );
+            return res.json(stocks);
         } catch (e) {
             next(e);
+        }
+    }
+
+    static getProductStocksFilter(stocks, filterArgs) {
+        try {
+            const { minPrice, maxPrice, metro, is247, isDiscounted, pharmacy } =
+                filterArgs;
+            if (+minPrice) {
+                stocks = stockService.stocksFilterMinPrice(stocks, +minPrice);
+            }
+            if (+maxPrice) {
+                stocks = stockService.stocksFilterMaxPrice(stocks, +maxPrice);
+            }
+            if (metro) {
+                const metroArray = metro.split(";");
+                stocks = stockService.stocksFilterMetro(stocks, metroArray);
+            }
+            if (!!is247) {
+                stocks = stockService.stocksFilterIs247(
+                    stocks,
+                    !!parseInt(is247)
+                );
+            }
+            if (!!isDiscounted) {
+                stocks = stockService.stocksFilterIsDiscounted(
+                    stocks,
+                    !!parseInt(isDiscounted)
+                );
+            }
+            if (!!pharmacy) {
+                stocks = stockService.stocksFilterPharmacy(stocks, pharmacy);
+            }
+            return stocks;
+        } catch (e) {
+            throw e;
         }
     }
 
