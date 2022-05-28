@@ -20,6 +20,21 @@ class ProductService {
             return null;
         }
     }
+
+    async incrementField(id, field) {
+        try {
+            productModel.findByIdAndUpdate(
+                { _id: id },
+                { $inc: { [field]: 1 } },
+                { new: true },
+                function (err, res) {
+                    return true;
+                }
+            );
+        } catch (e) {
+            return null;
+        }
+    }
 }
 
 module.exports = new ProductService();

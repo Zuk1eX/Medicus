@@ -1,153 +1,187 @@
 <template>
-  <div
-    class="overlay"
-    :style="{ visibility: overlayVisibility, opacity: overlayOpacity }"
-    @click.stop="this.$emit('hide', $event)"
-  >
-    <div class="overlay__container" tabindex="0">
-      <div class="overlay__suggests">
-        <button class="suggests__btn">Отривин</button>
-        <button class="suggests__btn">Отривин экспресс</button>
-      </div>
-      <div class="overlay__results">
-        <div class="results__head">
-          <p class="head__title head__title--name">Наименование</p>
-          <p class="head__title head__title--offers">Предложений</p>
-          <p class="head__title head__title--prices-range">Диапазон цен</p>
-          <p class="head__title head__title--open">Открыть</p>
+    <div class="search-overlay" :class="{ enabled: searchOverlayActive }">
+        <div class="overlay__back" @click="disable"></div>
+        <div class="overlay__body" v-scroll="handleScroll">
+            <div class="overlay__top" ref="overlayTop">
+                <p class="overlay__title overlay__title--50">Наименование</p>
+                <p class="overlay__title overlay__title--20">Предложений</p>
+                <p class="overlay__title overlay__title--20">Диапазон цен</p>
+                <p class="overlay__title overlay__title--10">&nbsp;</p>
+            </div>
+            <div class="overlay__cards" v-show="!productsEmpty && !loadingOverlay">
+                <search-overlay-card
+                    v-for="product in searchProductsOverlay.results"
+                    :key="product['item']['_id']"
+                    :product-data="product['item']"
+                ></search-overlay-card>
+            </div>
+            <div class="overlay__cards" v-show="loadingOverlay">
+                <search-overlay-card-sceleton v-for="item in 3" :key="item"></search-overlay-card-sceleton>
+            </div>
+            <div class="overlay__cards--empty" v-show="productsEmpty && !loadingOverlay">
+                Результатов по запросу не найдено
+            </div>
         </div>
-        <div class="results__items">
-          <overlay-container></overlay-container>
-        </div>
-      </div>
     </div>
-  </div>
 </template>
 <script>
-import OverlayContainer from "./OverlayContainer.vue";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import SearchOverlayCard from "./SearchOverlayCard.vue";
+import SearchOverlayCardSceleton from "./SearchOverlayCardSceleton.vue";
 export default {
-  components: { OverlayContainer },
-  props: {
-    active: {
-      type: Boolean,
+    components: { SearchOverlayCard, SearchOverlayCardSceleton },
+    data() {
+        return {
+            searchTimer: null,
+        };
     },
-  },
-  data() {
-    return {};
-  },
-  methods: {},
-  computed: {
-    overlayVisibility() {
-      return this.active ? "visible" : "hidden";
+    methods: {
+        ...mapMutations([
+            "searchOverlayDisable",
+            "searchOverlayEnable",
+            "clearSearchProductsOverlay",
+            "changeLoadingOverlay",
+        ]),
+        ...mapActions(["getSearchProductsOverlayAPI"]),
+        disable() {
+            this.searchOverlayDisable();
+        },
+        setLoading(value) {
+            this.changeLoadingOverlay(value);
+        },
+        getProducts() {
+            this.getSearchProductsOverlayAPI({
+                text: this.searchText,
+                limit: 5,
+            });
+        },
+        handleScroll(event) {
+            if (event.target.scrollTop > 7) {
+                this.$refs.overlayTop.style.zIndex = 1;
+            } else {
+                this.$refs.overlayTop.style.zIndex = 0;
+            }
+        },
     },
-    overlayOpacity() {
-      return this.active ? 1 : 0;
+    computed: {
+        ...mapGetters(["searchOverlayActive", "searchProductsOverlay", "searchText", "loadingOverlay"]),
+        productsEmpty() {
+            return this.searchProductsOverlay.total.resultsCount === 0;
+        },
     },
-  },
+    watch: {
+        searchText() {
+            if (this.searchText) {
+                this.setLoading(true);
+                this.clearSearchProductsOverlay();
+                clearTimeout(this.searchTimer);
+                this.searchTimer = setTimeout(() => {
+                    this.getProducts();
+                }, 300);
+            }
+        },
+    },
 };
 </script>
-<style lang="scss">
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  visibility: hidden;
-  transition: visibility 0.1s ease-in-out, opacity 0.1s ease-in-out;
+<style lang="css">
+.search-overlay {
+    z-index: 9;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin-top: -35px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.1s ease;
+}
 
-  &__container {
-    background: #ffffff;
-    border-radius: 16px;
+.enabled {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay__back {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), rgba(86, 128, 233, 0.2);
+}
+
+.overlay__body {
+    position: relative;
+    max-height: 371px;
     max-width: 950px;
-    max-height: 416px;
+    background-color: #ffffff;
+    border-radius: 16px;
     margin: 0 auto;
-    margin-top: 150px;
-    z-index: 13;
-    max-height: 420px;
-    padding-right: 9px;
     overflow-y: auto;
-    border: 20px solid white;
-    border-right: 9px solid #ffffff;
-
-    &::-webkit-scrollbar {
-      width: 11px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background-color: rgba(86, 128, 233, 0.3);
-      background-clip: content-box;
-      border: 2px solid transparent;
-      border-radius: 5px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: #5680e9;
-      border-radius: 5px;
-      background-clip: content-box;
-      border-right: 2px solid transparent;
-      border-top: 2px solid transparent;
-      border-bottom: 2px solid transparent;
-      border-left: 2px solid transparent;
-    }
-  }
-
-  &__suggests {
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
-    padding-bottom: 10px;
-  }
-
-  &__results {
-  }
-}
-.suggests__btn {
-  background: rgba(86, 128, 233, 0.3);
-  border-radius: 16px;
-  padding: 8px 15px;
-  font-weight: 300;
-  font-size: 16px;
+    padding-bottom: 20px;
 }
 
-.results {
-  &__head {
-    padding: 10px;
+.overlay__body::-webkit-scrollbar {
+    width: 14px;
+}
+
+.overlay__body::-webkit-scrollbar-track {
+    background-color: rgba(86, 128, 233, 0.3);
+    background-clip: content-box;
+    border-right: 8px solid transparent;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-radius: 5px;
+}
+
+.overlay__body::-webkit-scrollbar-thumb {
+    background-color: #5680e9;
+    border-radius: 5px;
+    background-clip: content-box;
+    border-right: 8px solid transparent;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+}
+
+.overlay__top {
+    padding: 25px 25px 10px 30px;
     display: flex;
     justify-content: space-between;
-    gap: 20px;
+    align-items: center;
     position: sticky;
     top: 0;
     background-color: #ffffff;
-  }
-
-  &__items {
-    display: flex;
-    flex-direction: column;
-  }
 }
 
-.head {
-  &__title {
+.overlay__title {
+    font-size: 16px;
+    color: #6f6f6f;
     text-align: center;
-  }
+}
 
-  &__title--name {
+.overlay__title--50 {
     flex: 50%;
-  }
+}
 
-  &__title--offers {
+.overlay__title--20 {
     flex: calc(50% / 3);
-  }
+}
 
-  &__title--prices-range {
-    flex: calc(50% / 3);
-  }
+.overlay__title--10 {
+    flex: calc(50% / 4);
+}
 
-  &__title--open {
-    flex: calc(50% / 5);
-    visibility: hidden;
-  }
+.overlay__cards {
+    display: flex;
+    flex-direction: column;
+    padding: 0 15px 0 20px;
+}
+
+.overlay__cards--empty {
+    font-weight: 600;
+    font-size: 18px;
+    text-align: center;
+    padding: 20px 0 10px;
 }
 </style>

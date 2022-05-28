@@ -24,10 +24,31 @@ const stocksResultsProject = [
             imageUrl: 1,
             rating: 1,
             minPrice: 1,
+            // views: 1,
             stocksCount: { $add: ["$stocksCount", -1] },
         },
     },
 ];
+
+const stocksResultsFullProject = {
+    _id: 1,
+    barcode: 1,
+    title: 1,
+    description: {
+        $concat: ["$form", ", ", "$dosage", ", ", "$quantity"],
+    },
+    fullTitle: {
+        $concat: ["$title", ", ", "$form", ", ", "$dosage", ", ", "$quantity"],
+    },
+    fullVendor: {
+        $concat: ["$vendor.title", ", ", "$vendor.country"],
+    },
+    rating: 1,
+    imageUrl: 1,
+    minPrice: 1,
+    maxPrice: 1,
+    stocksCount: { $add: ["$stocksCount", -1] },
+};
 
 class StockService {
     async getAllStocks(sort, direction, limit, offset) {
@@ -47,6 +68,51 @@ class StockService {
         return stocks;
     }
 
+    // async getAllStocksBeginAlpha(alpha, sort, direction, limit, offset) {
+    //     const match = new RegExp("^" + alpha + ".*", "i")
+    //     console.log(match)
+    //     const stocks = await uniStocksService.stocksAggregateProduct()
+    //     .append({
+
+    //                 $match: {
+    //                     fullTitle: {
+    //                                     $regex: /^О.*/ui,
+    //                                 },
+    //                 }
+    //                 // $regexMatch: {
+    //                 //     input: 'fullTitle',
+    //                 //     regex: match
+    //                 // }
+
+    //     })
+    //     .facet({
+    //         results: [
+    //             // {
+    //             //     $match: {
+    //             //         fullTitle: {
+    //             //             $regex: /^О.*/ui,
+    //             //         },
+    //             //     },
+    //             // },
+    //             { $sort: { [sort]: direction } },
+    //             ...stocksResultsProject,
+    //             { $skip: offset },
+    //             { $limit: limit },
+    //         ],
+    //         // total: [
+    //         //     // {
+    //         //         {$match: {
+    //         //             fullTitle: {
+    //         //                 $regex: new RegExp("^" + alpha + ".*", "i"),
+    //         //             },
+    //         //         },},
+    //         //         {$count: "resultsCount",}
+    //         //     // },
+    //         // ],
+    //     });
+    //     return stocks;
+    // }
+
     async getAllStocksByQuery(text, sort, direction, limit, offset) {
         const fuseOptions = {
             treshold: 0.5,
@@ -55,17 +121,7 @@ class StockService {
         const stocks = await uniStocksService
             .stocksAggregateProduct()
             .sort({ [sort]: direction })
-            .project({
-                _id: 1,
-                title: 1,
-                description: {
-                    $concat: ["$form", ", ", "$dosage", ", ", "$quantity"],
-                },
-                imageUrl: 1,
-                minPrice: 1,
-                maxPrice: 1,
-                stocksCount: { $add: ["$stocksCount", -1] },
-            });
+            .project(stocksResultsFullProject);
         const fuseSearch = new Fuse(stocks, fuseOptions);
         const resultStocks = fuseSearch.search(text);
         const limitedResultStocks = resultStocks.slice(offset, offset + limit);
@@ -73,6 +129,19 @@ class StockService {
             {
                 results: limitedResultStocks,
                 total: { resultsCount: resultStocks.length },
+            },
+        ];
+    }
+
+    async getStockByBarcode(barcode) {
+        const stock = await uniStocksService
+            .stocksAggregateProduct()
+            .match({ barcode })
+            .project(stocksResultsFullProject);
+        return [
+            {
+                results: [{ item: stock[0] }],
+                total: { resultsCount: stock.length },
             },
         ];
     }
@@ -108,7 +177,12 @@ class StockService {
                 { $count: "resultsCount" },
             ],
         });
-        return stocks;
+        return [
+            {
+                results: stocks[0].results,
+                total: stocks[0].total[0] ?? { resultsCount: 0 },
+            },
+        ];
     }
 
     async getAllStocksByPharmgroup(pharmgroup, sort, direction, limit, offset) {
@@ -155,7 +229,12 @@ class StockService {
                 { $count: "resultsCount" },
             ],
         });
-        return stocks;
+        return [
+            {
+                results: stocks[0].results,
+                total: stocks[0].total[0] ?? { resultsCount: 0 },
+            },
+        ];
     }
 
     async getAllStocksByInn(inn, sort, direction, limit, offset) {
@@ -180,7 +259,12 @@ class StockService {
                 { $count: "resultsCount" },
             ],
         });
-        return stocks;
+        return [
+            {
+                results: stocks[0].results,
+                total: stocks[0].total[0] ?? { resultsCount: 0 },
+            },
+        ];
     }
 
     async getAllStocksByPharmacyId(id, sort, direction, limit, offset) {
@@ -207,15 +291,15 @@ class StockService {
                 {
                     $group: {
                         _id: "$pharmacy._id",
-                        title: { $first: "$pharmacy.title" },
-                        region: { $first: "$pharmacy.region" },
-                        address: { $first: "$pharmacy.address" },
-                        metro: { $first: "$pharmacy.metro" },
-                        location: { $first: "$pharmacy.location" },
-                        workingHours: { $first: "$pharmacy.workingHours" },
-                        phone: { $first: "$pharmacy.phone" },
-                        site: { $first: "$pharmacy.site" },
-                        email: { $first: "$pharmacy.email" },
+                        // title: { $first: "$pharmacy.title" },
+                        // region: { $first: "$pharmacy.region" },
+                        // address: { $first: "$pharmacy.address" },
+                        // metro: { $first: "$pharmacy.metro" },
+                        // location: { $first: "$pharmacy.location" },
+                        // workingHours: { $first: "$pharmacy.workingHours" },
+                        // phone: { $first: "$pharmacy.phone" },
+                        // site: { $first: "$pharmacy.site" },
+                        // email: { $first: "$pharmacy.email" },
                         stock: {
                             $push: {
                                 $mergeObjects: [
@@ -247,14 +331,14 @@ class StockService {
                 },
             ])
             .facet({
-                pharmacy: [
-                    {
-                        $project: {
-                            _id: 1,
-                        },
-                    },
-                    { $limit: 1 },
-                ],
+                // pharmacy: [
+                //     {
+                //         $project: {
+                //             _id: 1,
+                //         },
+                //     },
+                //     { $limit: 1 },
+                // ],
                 stocks: [
                     {
                         $project: {
@@ -267,7 +351,14 @@ class StockService {
                 ],
                 total: [{ $count: "stocksCount" }],
             });
-        return stocks;
+        // return stocks;
+        return [
+            {
+                // pharmacy: stocks.pharmacy,
+                results: stocks[0].stocks,
+                total: stocks[0].total[0] ?? { stocksCount: 0 },
+            },
+        ];
     }
 
     async getAllStocksByProductId(id, sort, direction, limit, offset) {
@@ -413,7 +504,13 @@ class StockService {
                 ],
                 total: [{ $count: "stocksCount" }],
             });
-        return stocks;
+        return [
+            {
+                stocks: stocks[0].results,
+                total: stocks[0].total[0] ?? { stocksCount: 0 },
+            },
+        ];
+        // return stocks;
     }
 }
 

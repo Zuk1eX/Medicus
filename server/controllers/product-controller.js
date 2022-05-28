@@ -17,6 +17,16 @@ class ProductController {
             next(e);
         }
     }
+
+    async incrementViews(req, res, next) {
+        try {
+            const productId = req.params.id;
+            await productService.incrementField(productId, "views");
+            return res.json({ Message: "Product views incremented" });
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new ProductController();

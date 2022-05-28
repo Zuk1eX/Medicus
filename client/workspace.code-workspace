@@ -6,6 +6,8 @@
 		}
 	],
 	"settings": {
-		"editor.tabSize": 2
+		"editor.tabSize": 4,
+		"volar.preview.backgroundColor": "#ffffff",
+		"typescript.tsdk": "node_modules/typescript/lib"
 	}
 }

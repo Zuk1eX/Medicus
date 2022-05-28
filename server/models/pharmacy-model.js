@@ -63,6 +63,12 @@ const PharmacySchema = new Schema(
         email: {
             type: String,
         },
+        imageUrl: {
+            type: String,
+        },
+        locationDescr: {
+            type: String,
+        },
     },
     { timestamps: true }
 );

@@ -1,44 +1,73 @@
 import { createRouter, createWebHistory } from "vue-router";
+import NotFoundPage from "@/views/NotFoundPage";
 import MainPage from "@/views/MainPage";
 import ProductPage from "@/views/ProductPage";
 import SearchResultsPage from "@/views/SearchResultsPage";
 import ProductFormsPage from "@/views/ProductFormsPage";
 import ProductAnalogsPage from "@/views/ProductAnalogsPage";
 import ProductSynonimsPage from "@/views/ProductSynonimsPage";
+import PharmacyPage from "@/views/PharmacyPage";
 
 const routes = [
-  {
-    path: "/",
-    component: MainPage,
-  },
-  {
-    path: "/products/search",
-    component: SearchResultsPage,
-  },
-  {
-    path: "/products/product-:id",
-    component: ProductPage,
-  },
-  {
-    path: "/products/product-:id/forms",
-    name: "ProductForms",
-    component: ProductFormsPage,
-  },
-  {
-    path: "/products/product-:id/analogs",
-    name: "ProductAnalogs",
-    component: ProductAnalogsPage,
-  },
-  {
-    path: "/products/product-:id/synonims",
-    name: "ProductSynonims",
-    component: ProductSynonimsPage,
-  },
+    {
+        path: "/404",
+        name: "notFound",
+        component: NotFoundPage,
+    },
+    {
+        path: "/:catchAll(.*)",
+        redirect: "404",
+    },
+    {
+        path: "/",
+        name: "main",
+        component: MainPage,
+    },
+    {
+        path: "/search",
+        name: "searchResults",
+        component: SearchResultsPage,
+    },
+    {
+        path: "/products/product-:id",
+        name: "product",
+        component: ProductPage,
+    },
+    {
+        path: "/products/product-:id/forms",
+        name: "productForms",
+        component: ProductFormsPage,
+    },
+    {
+        path: "/products/product-:id/analogs",
+        name: "productAnalogs",
+        component: ProductAnalogsPage,
+    },
+    {
+        path: "/products/product-:id/synonims",
+        name: "productSynonims",
+        component: ProductSynonimsPage,
+    },
+    {
+        path: "/pharmacies/pharmacy-:id",
+        name: "pharmacy",
+        component: PharmacyPage,
+    },
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes,
+    history: createWebHistory(process.env.BASE_URL),
+    routes,
+    scrollBehavior() {
+        document.getElementById("app").scrollIntoView({ behavior: "smooth" });
+    },
+    // scrollBehavior(to, from, savedPosition) {
+    //     if (savedPosition) {
+    //         return savedPosition;
+    //     } else {
+    //         return { x: 0, y: 0 };
+    //     }
+    // },
 });
 
 export default router;

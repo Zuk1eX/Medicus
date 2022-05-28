@@ -104,7 +104,7 @@ class UniStocksService {
         ]);
     }
 
-    stocksByProductId(id, sort, direction) {
+    stocksByProductId(id) {
         return stockModel.aggregate([
             {
                 $match: {
@@ -154,6 +154,8 @@ class UniStocksService {
                     "pharmacy.location": 1,
                     "pharmacy.workingHours": 1,
                     "pharmacy.is247": 1,
+                    "pharmacy.imageUrl": 1,
+                    "pharmacy.locationDescr": 1,
                     isStocked: 1,
                     isDiscounted: 1,
                     price: 1,
