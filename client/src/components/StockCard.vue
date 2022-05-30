@@ -43,10 +43,15 @@
             <div class="stock-separator"></div>
             <p class="stock__price">{{ formatPrice }}</p>
             <div
-                class="arrow-more"
-                :class="{ 'arrow-more--visible': stockCardHovered, 'arrow-more--active': stockCardClicked }"
+                class="stock-more"
+                :class="{ 'stock-more--visible': stockCardHovered, 'stock-more--active': stockCardClicked }"
                 @click="toggleStockCard"
-            ></div>
+            >
+                <div
+                    class="arrow-more"
+                    :class="{ 'arrow-more--visible': stockCardHovered, 'arrow-more--active': stockCardClicked }"
+                ></div>
+            </div>
         </div>
         <div class="stock-bottom" ref="stockCardBottom">
             <img :src="require('@/assets/imgs/map-mini.png')" alt="" class="stock__map" />
@@ -79,7 +84,7 @@
                     </div>
                 </div>
                 <div class="stock__pharmacy-btns">
-                    <a href="http://map.ru" class="map__btn">На карте</a>
+                    <a href="http://map.ru" target="_blank" class="map__btn">На карте</a>
                     <router-link :to="{ name: 'pharmacy', params: { id: pharmacyData._id } }" class="pharmacy__btn">
                         Ассортимент
                     </router-link>
@@ -111,7 +116,7 @@ export default {
             this.pharmacySchedule = this.pharmacyData.workingHours.map((item) => `${item.open} - ${item.close}`);
         },
         toggleStockCard() {
-            this.$refs.stockCard.querySelector(".stock-bottom").classList.toggle("stock-bottom--active");
+            this.$refs.stockCardBottom.classList.toggle("stock-bottom--active");
             this.stockCardClicked = !this.stockCardClicked;
         },
     },
@@ -141,9 +146,6 @@ export default {
         formatMetro() {
             return this.pharmacyData.metro.join(", ");
         },
-        // stockCardClicked() {
-        //     return this.$refs.stockCardBottom.classList.contains("stock-bottom--active");
-        // },
     },
     mounted() {
         this.formatPharmacySchedule();
@@ -152,7 +154,7 @@ export default {
 </script>
 <style lang="css" scoped>
 .stock-card {
-    padding: 20px 20px 20px 20px;
+    padding: 20px 20px 0 20px;
     /* cursor: pointer; */
     background-color: rgba(255, 255, 255, 0.85);
     border-radius: 10px;
@@ -171,6 +173,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     position: relative;
+    padding-bottom: 20px;
 }
 
 .stock-main {
@@ -340,18 +343,34 @@ export default {
     text-align: right;
 }
 
-.arrow-more {
+.stock-more {
     position: absolute;
-    height: 20px;
-    bottom: -20px;
-    left: -20px;
-    right: -20px;
-    background: url("@/assets/icons/arrow-stock-card.svg") center 0 no-repeat;
-    opacity: 0;
-    transition: all 0.2s ease;
-    /* transition: background-position 0.1s ease; */
-    /* transition-property: opacity, transform; */
+    bottom: 0;
+    width: 116px;
+    height: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #cdd9f9;
+    background: url("@/assets/icons/more-bg.svg") center no-repeat;
     cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.stock-more--visible {
+    opacity: 1;
+}
+
+.stock-more--active {
+    opacity: 1;
+}
+
+.arrow-more {
+    width: 100%;
+    height: 100%;
+    background: url("@/assets/icons/arrow-stock-card.svg") center no-repeat;
+    opacity: 0;
+    transition: all 0.2s ease-out;
 }
 
 .arrow-more--visible {
@@ -359,10 +378,8 @@ export default {
 }
 
 .arrow-more--active {
-    /* opacity: 1; */
+    opacity: 1;
     transform: rotateX(180deg);
-    background-position-y: 9px;
-    /* background: url("@/assets/icons/arrow-stock-card--hovered.svg") center 9px no-repeat; */
 }
 
 .stock-bottom {
@@ -376,6 +393,7 @@ export default {
 
 .stock-bottom--active {
     max-height: 400px;
+    background: radial-gradient(100% 100% at 50% 0%, rgba(205, 217, 249, 0.75) 7%, rgba(255, 255, 255, 0) 48%);
     transition: all 0.2s cubic-bezier(0.65, 0, 1, 0);
 }
 
@@ -384,14 +402,14 @@ export default {
     width: 50%;
     object-fit: cover;
     border-radius: 10px 10px 10px 10px;
-    margin-top: 20px;
+    margin: 20px 0;
 }
 
 .stock-bottom__right {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin-top: 20px;
+    margin: 20px 0;
 }
 
 .stock__pharmacy-info {

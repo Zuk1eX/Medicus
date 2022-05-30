@@ -34,7 +34,15 @@ export default {
                 return product.data;
             } catch (error) {
                 console.log(error);
-                return error;
+                throw error;
+            }
+        },
+        async incrementProductViews({ commit }, productId) {
+            try {
+                await axios.patch(`/products/${productId}/views`);
+            } catch (error) {
+                console.log(error);
+                throw error;
             }
         },
     },

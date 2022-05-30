@@ -161,6 +161,7 @@ class UniStocksService {
                     price: 1,
                 },
             },
+            
             {
                 $facet: {
                     results: [],

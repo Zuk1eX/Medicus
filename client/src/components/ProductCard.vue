@@ -11,13 +11,27 @@
         </h4>
         <p class="card__vendor">{{ productData.fullVendor }}</p>
         <div class="separator"></div>
-        <div class="card__pharmacies">
+        <div class="card__pharmacies" v-if="type === 'pharmacy'">
+            <p>&nbsp;</p>
+        </div>
+        <div class="card__pharmacies" v-else>
             <p class="pharmacies__all" v-show="productData.stocksCount">
                 В наличии в <span class="bold">{{ productData.stocksCount }}</span> аптеках
             </p>
             <p class="pharmacies__all" v-show="!productData.stocksCount">Нет в наличии</p>
         </div>
-        <div class="card__bottom">
+        <div class="card__bottom" v-if="type === 'pharmacy'">
+            <div class="card__price" v-show="productData.price">
+                <span class="bold">{{ formatPrice }}</span>
+            </div>
+            <div class="card__price" v-show="!productData.price"><span class="bold">Нет в наличии</span></div>
+            <router-link :to="{ name: 'product', params: { id: productData._id } }">
+                <button class="card__more">
+                    <img :src="require('@/assets/icons/arrow-card.svg')" />
+                </button>
+            </router-link>
+        </div>
+        <div class="card__bottom" v-else>
             <div class="card__price" v-show="productData.minPrice">
                 Цена от <span class="bold">{{ formatMinPrice }}</span>
             </div>
@@ -37,6 +51,9 @@ export default {
     props: {
         productData: {
             type: Object,
+        },
+        type: {
+            type: String,
         },
     },
     mixins: [favouriteProductMixin],
@@ -60,13 +77,21 @@ export default {
                 .format(this.productData.minPrice)
                 .replace(",", ".");
         },
+        formatPrice() {
+            return new Intl.NumberFormat("ru-RU", {
+                style: "currency",
+                currency: "RUB",
+            })
+                .format(this.productData.price)
+                .replace(",", ".");
+        },
     },
 };
 </script>
 <style lang="css" scoped>
 .product-card {
     padding: 20px;
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.75);
     border-radius: 16px;
     display: flex;
     flex-direction: column;
@@ -75,12 +100,14 @@ export default {
     cursor: default;
     z-index: 1;
     transition: all 0.3s ease;
-    transition-property: filter, z-index;
+    transition-property: filter, z-index, border;
+    /* border: 2px solid #5680e941; */
 }
 
 .product-card:hover {
     filter: drop-shadow(0px 5px 40px rgba(86, 128, 233, 0.7));
     z-index: 2;
+    /* border-color: transparent; */
 }
 
 .product-card:hover .card__more {

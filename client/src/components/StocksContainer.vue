@@ -5,7 +5,12 @@
                 <p class="stocks__top-item">
                     Найдено аптек: <span class="semibold">{{ formatStocksCount }}</span>
                 </p>
-                <p class="stocks__top-item">// Диапазон цен: <span class="semibold">259.50 ... 840 ₽</span></p>
+                <p class="stocks__top-item" v-show="stocksCount">
+                    Диапазон цен:
+                    <span class="semibold"
+                        >{{ formatPrice(MinMaxprice(0)) }} ... {{ formatPrice(MinMaxprice(1)) }} ₽</span
+                    >
+                </p>
             </div>
             <div class="separator-bold"></div>
 
@@ -36,50 +41,28 @@
     </div>
 </template>
 <script>
-// import { favouritePharmacyMixin } from "@/mixins/generalMixin";
-import { mapActions, mapGetters, mapMutations } from "vuex";
 import StockCard from "./StockCard.vue";
 export default {
     components: { StockCard },
     name: "StocksContainer",
     props: {
-        // productId: {
-        //     type: String || [String],
-        // },
         stocksData: {
             type: Object,
         },
     },
-    // mixins: [favouritePharmacyMixin],
     methods: {
-        // ...mapActions(["addFavouriteProduct", "removeFavouriteProduct"]),
+        formatPrice(price) {
+            return new Intl.NumberFormat().format(price).replace(",", ".");
+        },
+        MinMaxprice(price) {
+            const { minPrice, maxPrice } = this.stocksData.total;
+            return price === 0 ? minPrice : maxPrice;
+        },
     },
     computed: {
-        // ...mapGetters(["favouriteProducts", "checkFavouriteProduct"]),
-        // pharmacyFavouriteIcon() {
-        //     if (this.favourite) {
-        //         return require("@/assets/icons/favourite-productpage--active.svg");
-        //     }
-        //     return require("@/assets/icons/favourite-productpage.svg");
-        // },
         formatStocksCount() {
             return new Intl.NumberFormat("ru-RU").format(this.stocksCount);
         },
-        // formatPrice() {
-        //     return new Intl.NumberFormat("ru-RU", {
-        //         style: "currency",
-        //         currency: "RUB",
-        //         minimumFractionDigits: 2,
-        //     })
-        //         .format(this.productData.minPrice)
-        //         .replace(",", ".");
-        // },
-        // formatPhone() {
-        //     return this.phone.replace(/(\+\d)(\d{3})(\d{3})(\d{2})(\d{2})/, "$1 ($2) $3 $4 $5");
-        // },
-        // formatMetro() {
-        //     return this.metro.join(", ");
-        // },
         stocksCount() {
             return this.stocksData.total.stocksCount;
         },

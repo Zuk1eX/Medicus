@@ -12,5 +12,6 @@ module.exports = class PharmacyDto {
         this.phone = model.phone;
         this.site = model.site;
         this.email = model.email;
+        this.locationDescr = model.locationDescr;
     }
 };

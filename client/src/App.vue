@@ -1,5 +1,3 @@
-
-
 <template>
     <router-view></router-view>
 </template>
@@ -20,7 +18,7 @@ export default {
             document.body.classList.toggle("overflow--hidden");
         },
     },
-    mounted() {
+    async mounted() {
         if (!localStorage.favouriteProducts) {
             localStorage.favouriteProducts = "[]";
         }

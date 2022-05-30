@@ -37,7 +37,7 @@ export default {
                 return products.data;
             } catch (error) {
                 console.log(error);
-                return error;
+                throw error;
             }
         },
         async getProductAnalogsAPI({ commit }, productId, params) {
@@ -51,7 +51,7 @@ export default {
                 return products.data;
             } catch (error) {
                 console.log(error);
-                return error;
+                throw error;
             }
         },
         async getProductSynonimsAPI({ commit }, productId, params) {
@@ -65,7 +65,7 @@ export default {
                 return products.data;
             } catch (error) {
                 console.log(error);
-                return error;
+                throw error;
             }
         },
     },

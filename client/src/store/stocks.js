@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default {
     state: {
-        stocksData: { stocks: [], total: { stocksCount: 0 } },
+        stocksData: { stocks: [], total: { stocksCount: 0, minPrice: 0, maxPrice: 0 } },
         loadingStocksData: true,
     },
     getters: {

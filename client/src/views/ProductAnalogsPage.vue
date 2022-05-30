@@ -31,6 +31,7 @@
             v-for="product in productActionResultsData.results"
             :key="product['_id']"
             :product-data="product"
+            :type="'product'"
         ></product-card>
     </div>
     <div class="loader" v-show="loadingState">
@@ -75,7 +76,11 @@ export default {
         getProductAnalogs() {
             this.changeLoadingState(true);
             setTimeout(() => {
-                this.getProductAnalogsAPI(this.productId);
+                this.getProductAnalogsAPI(this.productId).catch((e) => {
+                    if (e.response.status === 404) {
+                        this.$router.push({ name: "notFound" });
+                    }
+                });
             }, 1000);
         },
     },
@@ -105,10 +110,7 @@ export default {
         },
     },
     mounted() {
-        if (
-            this.productDataEmpty ||
-            this.productPharmgroup !== this.productActionResultsProperty.pharmgroup
-        ) {
+        if (this.productDataEmpty || this.productPharmgroup !== this.productActionResultsProperty.pharmgroup) {
             this.getProductAnalogs();
         }
     },

@@ -33,6 +33,7 @@
             v-for="product in searchProductsResults.results"
             :key="product['item']['_id']"
             :product-data="product['item']"
+            :type="'product'"
         ></product-card>
     </div>
     <div class="loader" v-show="loadingState">

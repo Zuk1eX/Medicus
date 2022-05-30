@@ -1,37 +1,8 @@
 <template>
-    <!-- <div class="container product-section">
-        <div class="product__title"></div>
-        <div class="product-overview">
-            <div class="product__img"></div>
-            <div class="product-right">
-                <div class="product-description">
-                    <p class="product__prop">
-                        Действующее вещество (МНН):
-                        <span class="sceleton-block"></span>
-                    </p>
-                    <p class="product__prop">
-                        Фармакологическая группа:
-                        <span class="sceleton-block"></span>
-                    </p>
-                    <p class="product__prop">
-                        Производитель:
-                        <span class="sceleton-vendor"></span>&nbsp;
-                        <span class="sceleton-vendor"></span>
-                    </p>
-                </div>
-                <div class="product-btns">
-                    <button class="product__favourite" disabled></button>
-                    <div class="product__link">Все формы выпуска</div>
-                    <div class="product__link">Аналоги</div>
-                    <div class="product__link">Синонимы</div>
-                </div>
-            </div>
-        </div>
-    </div> -->
     <div class="container section-product">
         <h2 class="product__title"></h2>
         <div class="product__block">
-            <div alt="" class="product__img" />
+            <div class="product__img" />
             <div class="product__info">
                 <div class="product__description">
                     <p class="product__prop">
@@ -52,9 +23,6 @@
                     <button class="product__favourite" disabled>
                         <img :src="require('@/assets/icons/favourite-productpage-loading.svg')" alt="" />
                     </button>
-                    <!-- <button class="product__favourite--active">
-                        <img :src="require('@/assets/icons/favourite-productpage--active.svg')" alt="">
-                    </button> -->
                     <button class="product__link" disabled>Все формы выпуска</button>
                     <button class="product__link" disabled>Аналоги</button>
                     <button class="product__link" disabled>Синонимы</button>
@@ -104,7 +72,7 @@ export default {
     margin-bottom: 30px;
     max-width: 800px;
     height: 28px;
-    top: -8px;
+    top: -6px;
     border-radius: 50vmin;
     @include after;
 }

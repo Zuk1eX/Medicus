@@ -23,12 +23,16 @@ export default {
     },
     methods: {
         ...mapMutations(["changeLoadingProductData", "clearProductData", "changeLoadingStocksData", "clearStocksData"]),
-        ...mapActions(["getProductDataAPI", "getStocksDataAPI"]),
+        ...mapActions(["getProductDataAPI", "getStocksDataAPI", "incrementProductViews"]),
         getProductData() {
             this.clearProductData();
             this.changeLoadingProductData(true);
             setTimeout(() => {
-                this.getProductDataAPI(this.productId);
+                this.getProductDataAPI(this.productId).catch((e) => {
+                    if (e.response.status === 404) {
+                        this.$router.push({ name: "notFound" });
+                    }
+                });
             }, 1000);
         },
         getStocksData() {
@@ -37,6 +41,9 @@ export default {
             setTimeout(() => {
                 this.getStocksDataAPI(this.productId);
             }, 1000);
+        },
+        plusProductView() {
+            this.incrementProductViews(this.productId);
         },
     },
     computed: {
@@ -51,6 +58,12 @@ export default {
                 this.productId = this.$route.params.id;
                 this.getProductData();
                 this.getStocksData();
+                this.plusProductView();
+            }
+        },
+        loadingProductData(value) {
+            if (!value) {
+                this.plusProductView();
             }
         },
     },

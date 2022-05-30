@@ -65,7 +65,13 @@ class StockService {
                 },
             ],
         });
-        return stocks;
+        // return stocks;
+        return [
+            {
+                results: stocks[0].results,
+                total: stocks[0].total[0],
+            },
+        ];
     }
 
     // async getAllStocksBeginAlpha(alpha, sort, direction, limit, offset) {
@@ -289,6 +295,11 @@ class StockService {
                 { $unwind: { path: "$product" } },
                 { $unwind: { path: "$pharmacy" } },
                 {
+                    $match: {
+                        isStocked: true,
+                    },
+                },
+                {
                     $group: {
                         _id: "$pharmacy._id",
                         // title: { $first: "$pharmacy.title" },
@@ -300,10 +311,42 @@ class StockService {
                         // phone: { $first: "$pharmacy.phone" },
                         // site: { $first: "$pharmacy.site" },
                         // email: { $first: "$pharmacy.email" },
-                        stock: {
+                        stocks: {
+                            //     $push: {
+                            //         $mergeObjects: [
+                            //             "$product",
+
+                            //             { price: "$price" },
+                            //             { isStocked: "$isStocked" },
+                            //             { isDiscounted: "$isDiscounted" },
+                            //         ],
+                            //     },
                             $push: {
                                 $mergeObjects: [
-                                    "$product",
+                                    {
+                                        _id: "$product._id",
+                                        fullTitle: {
+                                            $concat: [
+                                                "$product.title",
+                                                ", ",
+                                                "$product.form",
+                                                ", ",
+                                                "$product.dosage",
+                                                ", ",
+                                                "$product.quantity",
+                                            ],
+                                        },
+                                        fullVendor: {
+                                            $concat: [
+                                                "$product.vendor.title",
+                                                ", ",
+                                                "$product.vendor.country",
+                                            ],
+                                        },
+                                        rating: "$product.rating",
+                                        imageUrl: "$product.imageUrl",
+                                        // stocksCount: '$product'
+                                    },
                                     { price: "$price" },
                                     { isStocked: "$isStocked" },
                                     { isDiscounted: "$isDiscounted" },
@@ -314,63 +357,78 @@ class StockService {
                 },
                 {
                     $set: {
-                        stock: {
+                        stocks: {
                             $sortArray: {
-                                input: "$stock",
+                                input: "$stocks",
                                 sortBy: { [sort]: direction },
                             },
                         },
                     },
                 },
-                { $unwind: "$stock" },
+                // { $unwind: "$stock" },
                 {
                     $match: {
                         "pharmacy.title": { $ne: "admin" },
                         _id: Types.ObjectId(id),
                     },
                 },
+                {
+                    $set: {
+                        stocksCount: {
+                            $size: "$stocks",
+                        },
+                    },
+                },
             ])
             .facet({
-                // pharmacy: [
-                //     {
-                //         $project: {
-                //             _id: 1,
-                //         },
-                //     },
-                //     { $limit: 1 },
-                // ],
+                //     // pharmacy: [
+                //     //     {
+                //     //         $project: {
+                //     //             _id: 1,
+                //     //         },
+                //     //     },
+                //     //     { $limit: 1 },
+                //     // ],
                 stocks: [
                     {
                         $project: {
                             _id: 0,
-                            stock: 1,
+                            stocks: 1,
                         },
                     },
                     { $skip: offset },
                     { $limit: limit },
                 ],
-                total: [{ $count: "stocksCount" }],
+                total: [
+                    // { $count: "stocksCount" },
+                    {
+                        $project: {
+                            _id: 0,
+                            stocksCount: 1,
+                        },
+                    },
+                ],
             });
         // return stocks;
         return [
             {
                 // pharmacy: stocks.pharmacy,
-                results: stocks[0].stocks,
+                stocks: stocks[0].stocks[0]?.stocks ?? [],
                 total: stocks[0].total[0] ?? { stocksCount: 0 },
             },
         ];
     }
 
-    async getAllStocksByProductId(id, sort, direction, limit, offset) {
-        const stocks = await uniStocksService.stocksByProductIdSort(
-            id,
-            sort,
-            direction,
-            limit,
-            offset
-        );
-        return stocks;
-    }
+    // async getAllStocksByProductId(id, sort, direction, limit, offset) {
+    //     const stocks = await uniStocksService.stocksByProductIdSort(
+    //         id,
+    //         sort,
+    //         direction,
+    //         limit,
+    //         offset
+    //     );
+    //     return stocks;
+    // }
 
     stocksFilterEntry(id, sort, direction, limit, offset) {
         return uniStocksService.stocksByProductId(
@@ -503,11 +561,25 @@ class StockService {
                     { $limit: limit },
                 ],
                 total: [{ $count: "stocksCount" }],
+                min: [
+                    { $sort: { price: 1 } },
+                    { $limit: 1 },
+                    { $project: { _id: 0, price: 1 } },
+                ],
+                max: [
+                    { $sort: { price: -1 } },
+                    { $limit: 1 },
+                    { $project: { _id: 0, price: 1 } },
+                ],
             });
         return [
             {
                 stocks: stocks[0].results,
-                total: stocks[0].total[0] ?? { stocksCount: 0 },
+                total: {
+                    stocksCount: stocks[0].total[0]?.stocksCount ?? 0,
+                    minPrice: stocks[0].min[0]?.price ?? 0,
+                    maxPrice: stocks[0].max[0]?.price ?? 0,
+                },
             },
         ];
         // return stocks;

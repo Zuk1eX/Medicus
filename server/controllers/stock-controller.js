@@ -29,7 +29,7 @@ class StockController {
                     limit,
                     limit * (page - 1)
                 );
-                return res.json(products);
+                return res.json(products[0]);
             }
             return res
                 .status(400)

@@ -1,16 +1,14 @@
 <template>
-    <search-header></search-header>
     <div class="container section-results">
         <div class="results__top">
-            <h3 class="results__title">{{ productInn || productActionResultsProperty.inn }}</h3>
-            <p class="results__description" v-show="!loadingState && !pageUnloaded">
-                {{ nounForm(productsCount, searchNounsForms) }}
-                <span class="semibold">{{ productActionResultsData.total.resultsCount }}</span>
-                {{ nounForm(productsCount, productNounsForms) }}
+            <p class="results__description" v-show="!loadingPharmacyStocksData && !pageUnloaded">
+                {{ nounForm(stocksCount, searchNounsForms) }}
+                <span class="semibold">{{ stocksCount }}</span>
+                {{ nounForm(stocksCount, productNounsForms) }}
             </p>
         </div>
         <div class="separator-bold"></div>
-        <div class="section-sort" v-show="productsCount && !loadingState">
+        <div class="section-sort" v-show="stocksCount && !loadingPharmacyStocksData">
             <p class="sort__title">Сортировать:</p>
             <div class="radio">
                 <input class="custom-radio" type="radio" id="sort-location" name="sort" value="location" />
@@ -26,15 +24,15 @@
             </div>
         </div>
     </div>
-    <div class="container section-product-cards" v-show="productsCount && !loadingState">
+    <div class="container section-product-cards" v-show="stocksCount && !loadingPharmacyStocksData">
         <product-card
-            v-for="product in productActionResultsData.results"
-            :key="product['_id']"
-            :product-data="product"
-            :type="'product'"
+            v-for="stock in pharmacyStocksData.stocks"
+            :key="stock['_id']"
+            :product-data="stock"
+            type="pharmacy"
         ></product-card>
     </div>
-    <div class="loader" v-show="loadingState">
+    <div class="loader" v-show="loadingPharmacyStocksData">
         <svg width="110" height="52" viewBox="-1 0 112 51" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 id="loader"
@@ -43,76 +41,95 @@
             <use xlink:href="#loader"></use>
         </svg>
     </div>
-    <p class="section-empty" v-show="!productsCount && !loadingState && !pageUnloaded">
+    <p class="section-empty" v-show="!stocksCount && !loadingPharmacyStocksData">
         Результатов по запросу не найдено
     </p>
 </template>
 <script>
 import { nounMixin } from "@/mixins/generalMixin";
 import { mapMutations, mapActions, mapGetters } from "vuex";
-import SearchHeader from "@/components/SearchHeader.vue";
 import ProductCard from "@/components/ProductCard.vue";
 export default {
+    components: { ProductCard },
     mixins: [nounMixin],
-    components: { SearchHeader, ProductCard },
-    created() {
+    // props: {
+    //     stocksData: {
+    //         type: Object,
+    //     },
+    // },
+    props: {
+        pharmacyId: {
+            type: String || [String],
+        },
+    },
+    // created() {
         // window.addEventListener("beforeunload", () => {
         //     this.pageUnloaded = true;
-        //     this.clearProductActionResults();
+        //     this.clearSearchProductsResults();
         // });
-    },
+    // },
     data() {
         return {
             pageUnloaded: false,
             productNounsForms: ["товар", "товара", "товаров"],
             searchNounsForms: ["Найден", "Найдено", "Найдено"],
             currentPage: 1,
-            productId: this.$route.params.id,
         };
     },
     methods: {
-        ...mapMutations(["changeLoadingState", "clearProductActionResults"]),
-        ...mapActions(["getProductSynonimsAPI"]),
-        getProductSynonims() {
-            this.changeLoadingState(true);
+        // ...mapMutations(["changeLoadingPharmacyStocksData", "clearSearchProductsResults"]),
+        // ...mapActions(["getSearchProductsResultsAPI"]),
+        // getProducts() {
+        //     this.changeLoadingState(true);
+        //     setTimeout(() => {
+        //         this.getSearchProductsResultsAPI({
+        //             text: this.searchText || this.$route.query.text,
+        //             limit: 12,
+        //             page: this.currentPage,
+        //         });
+        //     }, 1000);
+        // },
+        ...mapMutations([
+            "changeLoadingPharmacyData",
+            "clearPharmacyData",
+            "changeLoadingPharmacyStocksData",
+            "clearPharmacyStocksData",
+        ]),
+        ...mapActions(["getPharmacyDataAPI", "getPharmacyStocksDataAPI"]),
+        getStocksData() {
+            this.clearPharmacyStocksData();
+            this.changeLoadingPharmacyStocksData(true);
             setTimeout(() => {
-                this.getProductSynonimsAPI(this.productId).catch((e) => {
-                    if (e.response.status === 404) {
-                        this.$router.push({ name: "notFound" });
-                    }
-                });
+                this.getPharmacyStocksDataAPI(this.pharmacyId);
             }, 1000);
         },
     },
     computed: {
-        ...mapGetters([
-            "productActionResults",
-            "loadingState",
-            "productActionResultsProperty",
-            "productActionResultsData",
-        ]),
-        productInn() {
-            return this.$route.params.inn ?? "";
-        },
-        productsCount() {
-            return this.productActionResultsData.total.resultsCount;
-        },
-        productDataEmpty() {
-            return !this.productActionResultsData.results.length;
+        ...mapGetters(["pharmacyData", "loadingPharmacyData", "pharmacyStocksData", "loadingPharmacyStocksData"]),
+        stocksCount() {
+            return this.pharmacyStocksData.total.stocksCount;
         },
     },
     watch: {
-        $route(value) {
-            if (this.$route.name === "productForms" && value.params.id) {
-                this.productId = this.$route.params.id;
-                this.getProductSynonims();
-            }
+        // "$route.query"(value) {
+        //     if (value.text) {
+        //         this.getProducts();
+        //     }
+        // },
+        currentPage() {
+            console.log(1);
         },
     },
     mounted() {
-        if (this.productDataEmpty || this.productInn !== this.productActionResultsProperty.inn) {
-            this.getProductSynonims();
+        // console.log(this.$router.options.history.state.forward);
+        // if (!this.$router.options.history.state.forward || this.pageRefreshed) {
+        if (!this.stocksCount || this.pharmacyId !== this.pharmacyData?._id) {
+            this.getStocksData();
         }
+        // }
+        // if (this.$router.forward.toString()) {
+        //     this.getProducts();
+        // }
     },
 };
 </script>
@@ -172,7 +189,8 @@ export default {
 
 .results__top {
     display: flex;
-    justify-content: space-between;
+    /* justify-content: space-between; */
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 15px;
     gap: 20px;
@@ -181,9 +199,14 @@ export default {
 .results__title {
     /* font-weight: 600;
     font-size: 28px; */
-    font-weight: 600;
-    font-size: 28px;
-    line-height: 100%;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 125%;
+}
+
+.results__title span {
+    line-height: 125%;
+    word-break: break-word;
 }
 
 .results__description {

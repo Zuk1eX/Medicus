@@ -2,6 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const { randomBytes } = require("crypto");
+const csrf = require("csurf");
+
 const router = require("./router");
 const errorMiddleware = require("./middlewares/error-middleware");
 
@@ -13,9 +17,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
         credentials: true,
-        // origin: process.env.CLIENT_URL,
+        origin: [process.env.CLIENT_URL, /http:\/\/192\.168\.1\.[0-9]+:8080/],
     })
 );
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
+
+app.get("/csrf", (req, res) => {
+    return res.json({ csrfToken: req.csrfToken() });
+});
+
 app.use("/api", router);
 app.use(errorMiddleware);
 
