@@ -11,11 +11,11 @@ import stocks from "./stocks";
 import pharmacy from "./pharmacy";
 import pharmacyStocks from "./pharmacyStocks";
 
-axios.defaults.baseURL = "http://localhost:5000/api";
+axios.defaults.baseURL = "https://medicus-server.herokuapp.com/api";
 axios.defaults.withCredentials = true;
 
 (async () => {
-    await fetch("http://localhost:5000/csrf", {
+    await fetch("https://medicus-server.herokuapp.com/csrf", {
         credentials: "include",
     })
         .then((res) => {
