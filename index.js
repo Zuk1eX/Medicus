@@ -5,9 +5,6 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const csrf = require("csurf");
 const compression = require("compression");
-const https = require("https");
-const fs = require("fs");
-const path = require("path");
 
 const router = require("./router");
 const errorMiddleware = require("./middlewares/error-middleware");
@@ -35,25 +32,8 @@ app.get("/csrf", (req, res) => {
     return res.json({ csrfToken: req.csrfToken() });
 });
 
-app.get(
-    "/.well-known/acme-challenge/FTevZMeDjCIZTxhFnKeWVAWe0Y-zYxJbSAbItAqFq3Y",
-    (req, res) => {
-        return res.send(
-            "eTNbgkVLvJ3VA_qTfy2XwzosLwTWLRZeGB9ZrydJwn8.ITvGWj2FpwE9743J_bq33Rc2cJBi6sQ6p9UkGA-F-Eg"
-        );
-    }
-);
-
 app.use("/api", router);
 app.use(errorMiddleware);
-
-const httpsServer = https.createServer(
-    {
-        key: fs.readFileSync(path.join(__dirname, "cert", "key.pem")),
-        cert: fs.readFileSync(path.join(__dirname, "cert", "cert.pem")),
-    },
-    app
-);
 
 async function start() {
     try {
