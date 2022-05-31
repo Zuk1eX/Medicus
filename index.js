@@ -33,6 +33,7 @@ app.use(cookieParser());
 app.use(csrf({ cookie: true }));
 
 app.get("/csrf", (req, res) => {
+    res.cookie("s", "s", { sameSite: "none", secure: true });
     return res.json({ csrfToken: req.csrfToken() });
 });
 
