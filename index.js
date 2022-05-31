@@ -15,21 +15,21 @@ const app = express();
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(
-//     cors({
-//         credentials: true,
-// origin: [
-//     process.env.CLIENT_URL,
-//     /http:\/\/192\.168\.1\.[0-9]+:8080/,
-//     "https://zuk1ex.github.io/medicus",
-// ],
-//     })
-// );
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    next();
-});
+app.use(
+    cors({
+        credentials: true,
+        origin: [
+            // process.env.CLIENT_URL,
+            // /http:\/\/192\.168\.1\.[0-9]+:8080/,
+            "https://zuk1ex.github.io/medicus",
+        ],
+    })
+);
+// app.use(function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//     next();
+// });
 app.use(cookieParser());
 app.use(csrf({ cookie: true }));
 
