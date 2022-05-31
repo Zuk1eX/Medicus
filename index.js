@@ -18,11 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
         credentials: true,
-        origin: [
+        origin:
             // process.env.CLIENT_URL,
             // /http:\/\/192\.168\.1\.[0-9]+:8080/,
             "https://zuk1ex.github.io/medicus",
-        ],
     })
 );
 app.use(function (req, res, next) {
