@@ -21,7 +21,7 @@ app.use(
         origin:
             // process.env.CLIENT_URL,
             // /http:\/\/192\.168\.1\.[0-9]+:8080/,
-            "https://zuk1ex.github.io/medicus",
+            "https://zuk1ex.github.io",
     })
 );
 app.use(function (req, res, next) {
