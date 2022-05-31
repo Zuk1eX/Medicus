@@ -26,7 +26,7 @@ app.use(
     })
 );
 app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "<origin>");
+    // res.header("Access-Control-Allow-Origin", "https://zuk1ex.github.io/medicus");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     next();
 });
