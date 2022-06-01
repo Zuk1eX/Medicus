@@ -11,18 +11,20 @@ import stocks from "./stocks";
 import pharmacy from "./pharmacy";
 import pharmacyStocks from "./pharmacyStocks";
 
-axios.defaults.baseURL = "https://medicus-server.herokuapp.com/api";
+const server = process.env.NODE_ENV === "production" ? "https://medicus-server.herokuapp.com" : "http://localhost:5000";
+
+axios.defaults.baseURL = `${server}/api`;
 axios.defaults.withCredentials = true;
 
 (async () => {
-    await fetch("https://medicus-server.herokuapp.com/csrf", {
+    await fetch(`${server}/csrf`, {
         credentials: "include",
     })
         .then((res) => {
             return res.json();
         })
         .then((data) => {
-            document.cookie = `CSRF-Token=${data.csrfToken};path=/`;
+            document.cookie = `CSRF-Token=${data.csrfToken};path=/;SameSite=None;Secure`;
             axios.defaults.headers.common["CSRF-Token"] = data.csrfToken;
         });
 })();
@@ -30,6 +32,7 @@ axios.defaults.withCredentials = true;
 export default createStore({
     state: {
         searchOverlayActive: false,
+        searchLogoScroll: false,
         searchText: "",
         loadingState: true,
         productsPopular: [],
@@ -37,6 +40,9 @@ export default createStore({
     getters: {
         searchOverlayActive(state) {
             return state.searchOverlayActive;
+        },
+        searchLogoScroll(state) {
+            return state.searchLogoScroll;
         },
         searchText(state) {
             return state.searchText;
@@ -54,6 +60,9 @@ export default createStore({
         },
         searchOverlayDisable(state) {
             state.searchOverlayActive = false;
+        },
+        changeSearchLogoScroll(state, value) {
+            state.searchLogoScroll = value;
         },
         changeSearchText(state, value) {
             state.searchText = value;

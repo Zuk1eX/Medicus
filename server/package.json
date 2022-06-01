@@ -4,26 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "serve": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "serve": "cross-env NODE_ENV=development node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js"
   },
   "keywords": [],
   "author": "zuk1ex <shipsi0209@gmail.com>",
   "license": "ISC",
-  "devDependencies": {
-    "nodemon": "^2.0.15"
-  },
   "dependencies": {
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "csurf": "^1.11.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "express-validator": "^6.14.0",
     "fuse.js": "^6.5.3",
-    "mongoose": "^6.2.10",
-    "uuid": "^8.3.2"
+    "mongoose": "^6.2.10"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }

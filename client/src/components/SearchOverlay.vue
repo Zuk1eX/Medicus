@@ -1,7 +1,7 @@
 <template>
     <div class="search-overlay" :class="{ enabled: searchOverlayActive }">
         <div class="overlay__back" @click="disable"></div>
-        <div class="overlay__body" v-scroll="handleScroll">
+        <div class="overlay__body" :class="{ 'overlay__body--scroll': searchLogoScroll }" v-scroll="handleScroll">
             <div class="overlay__top" ref="overlayTop">
                 <p class="overlay__title overlay__title--50">Наименование</p>
                 <p class="overlay__title overlay__title--20">Предложений</p>
@@ -64,7 +64,13 @@ export default {
         },
     },
     computed: {
-        ...mapGetters(["searchOverlayActive", "searchProductsOverlay", "searchText", "loadingOverlay"]),
+        ...mapGetters([
+            "searchOverlayActive",
+            "searchLogoScroll",
+            "searchProductsOverlay",
+            "searchText",
+            "loadingOverlay",
+        ]),
         productsEmpty() {
             return this.searchProductsOverlay.total.resultsCount === 0;
         },
@@ -120,6 +126,12 @@ export default {
     margin: 0 auto;
     overflow-y: auto;
     padding-bottom: 20px;
+}
+
+.overlay__body--scroll {
+    max-width: 984px;
+    margin: 0 auto 0 451px;
+    top: 25px;
 }
 
 .overlay__body::-webkit-scrollbar {

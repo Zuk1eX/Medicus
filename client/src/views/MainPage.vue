@@ -65,7 +65,6 @@
             </p>
             <p class="footer__about footer__about--right">
                 Developer: Gormash A.<br />
-                <!-- <a href="https://github.com/Zuk1eX">github.com/Zuk1eX</a> -->
                 <a href="http://github.com/Zuk1eX" target="_blank" class="social-link github-link"></a>
                 <a href="http://vk.com/Zuk1eX" target="_blank" class="social-link vk-link"></a>
             </p>

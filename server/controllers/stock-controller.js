@@ -39,6 +39,21 @@ class StockController {
         }
     }
 
+    async getFavouriteProducts(req, res, next) {
+        const idsArray = req.body.favouriteProducts;
+        if (!idsArray) {
+            return res
+                .status(400)
+                .json({ Error: "Array of favourite products is empty" });
+        }
+        try {
+            const products = await stockService.getAllStocksByIds(idsArray);
+            return res.json(products[0]);
+        } catch (e) {
+            next(e);
+        }
+    }
+
     async search(req, res, next) {
         try {
             let {
@@ -151,8 +166,9 @@ class StockController {
                     limit * (page - 1)
                 );
                 return res.json({
-                    property: {pharmgroup},
-                    results: productData[0]});
+                    property: { pharmgroup },
+                    results: productData[0],
+                });
             }
             return res
                 .status(400)
@@ -192,8 +208,9 @@ class StockController {
                     limit * (page - 1)
                 );
                 return res.json({
-                    property: {inn},
-                    results: productData[0]});
+                    property: { inn },
+                    results: productData[0],
+                });
             }
             return res
                 .status(400)

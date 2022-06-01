@@ -13,8 +13,8 @@ export default {
     },
     watch: {
         searchOverlayActive() {
-            const offset = window.innerWidth - document.body.clientWidth || 0;
-            document.body.style.paddingRight = `${offset}px`;
+            // const offset = window.innerWidth - document.body.clientWidth + 16 || 0;
+            // document.body.style.paddingRight = `${offset}px`;
             document.body.classList.toggle("overflow--hidden");
         },
     },
@@ -35,6 +35,7 @@ export default {
 @import url("@/assets/main.css");
 
 body {
+    overflow-x: hidden;
     font-family: "Mont", sans-serif;
     font-weight: 400;
     font-style: normal;
@@ -81,6 +82,7 @@ body {
     display: flex;
     justify-content: center;
     margin-top: 60px;
+    margin-bottom: 60px;
 }
 
 .loader svg {

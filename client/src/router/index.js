@@ -7,6 +7,7 @@ import ProductFormsPage from "@/views/ProductFormsPage";
 import ProductAnalogsPage from "@/views/ProductAnalogsPage";
 import ProductSynonimsPage from "@/views/ProductSynonimsPage";
 import PharmacyPage from "@/views/PharmacyPage";
+import FavouritePage from "@/views/FavouritePage";
 
 const routes = [
     {
@@ -52,6 +53,11 @@ const routes = [
         path: "/pharmacies/pharmacy-:id",
         name: "pharmacy",
         component: PharmacyPage,
+    },
+    {
+        path: "/favourite",
+        name: "favourite",
+        component: FavouritePage,
     },
 ];
 

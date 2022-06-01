@@ -2,7 +2,7 @@ module.exports = class PharmacyDto {
     constructor(model) {
         this._id = model._id.toString();
         this.title = model.title;
-        this.fullAddress = model.form;
+        this.fullAddress = `${model.region}, ${model.address}`;
         this.region = model.region;
         this.address = model.address;
         this.fullMetro = model.metro.join(", ");
