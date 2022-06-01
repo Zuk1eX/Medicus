@@ -21,4 +21,7 @@ router.get("/pharmacies/:id/pricelist", stockController.getPharmacyPricelist);
 
 router.patch("/products/:id/views", productController.incrementViews);
 
+router.post("/products", stockController.getFavouriteProducts);
+router.post("/pharmacies", pharmacyController.getFavouritePharmacies);
+
 module.exports = router;

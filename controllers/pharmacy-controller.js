@@ -17,6 +17,23 @@ class PharmacyController {
             next(e);
         }
     }
+
+    async getFavouritePharmacies(req, res, next) {
+        const idsArray = req.body.favouritePharmacies;
+        if (!idsArray) {
+            return res
+                .status(400)
+                .json({ Error: "Array of favourite pharmacies is empty" });
+        }
+        try {
+            const pharmacies = await pharmacyService.getPharmaciesByIds(
+                idsArray
+            );
+            return res.json(pharmacies[0]);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new PharmacyController();

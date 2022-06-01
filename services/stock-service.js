@@ -74,6 +74,39 @@ class StockService {
         ];
     }
 
+    async getAllStocksByIds(idsArray) {
+        idsArray = idsArray.map((item) => {
+            return Types.ObjectId(item);
+        });
+        const stocks = await uniStocksService.stocksAggregateProduct().facet({
+            results: [
+                {
+                    $match: {
+                        _id: { $in: idsArray },
+                    },
+                },
+                ...stocksResultsProject,
+            ],
+            total: [
+                {
+                    $match: {
+                        _id: { $in: idsArray },
+                    },
+                },
+                {
+                    $count: "resultsCount",
+                },
+            ],
+        });
+        // return stocks;
+        return [
+            {
+                results: stocks[0].results,
+                total: stocks[0].total[0],
+            },
+        ];
+    }
+
     // async getAllStocksBeginAlpha(alpha, sort, direction, limit, offset) {
     //     const match = new RegExp("^" + alpha + ".*", "i")
     //     console.log(match)
