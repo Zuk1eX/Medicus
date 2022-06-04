@@ -54,7 +54,16 @@
             </div>
         </div>
         <div class="stock-bottom" ref="stockCardBottom">
-            <img :src="require('@/assets/imgs/map-mini.png')" alt="" class="stock__map" />
+            <!-- <img :src="require('@/assets/imgs/map-mini.png')" alt="" class="stock__map" /> -->
+            <Suspense v-if="cardClicked">
+                <template #default>
+                    <yandex-map class="stock__map" :coords="mapCoords" :controls="mapControls" :zoom="mapZoom">
+                        <ymap-marker
+                            :coords="mapCoords"
+                            marker-id="1"
+                            :hint-content="`Аптека ${pharmacyData.title}`"
+                        /> </yandex-map></template
+            ></Suspense>
             <div class="stock-bottom__right">
                 <div class="stock__pharmacy-info">
                     <div class="stock__pharmacy-schedule">
@@ -84,7 +93,7 @@
                     </div>
                 </div>
                 <div class="stock__pharmacy-btns">
-                    <a href="http://map.ru" target="_blank" class="map__btn">На карте</a>
+                    <a :href="pharmacyLocationLink" target="_blank" class="map__btn">На карте</a>
                     <router-link :to="{ name: 'pharmacy', params: { id: pharmacyData._id } }" class="pharmacy__btn">
                         Ассортимент
                     </router-link>
@@ -96,7 +105,9 @@
 <script>
 import { favouritePharmacyMixin } from "@/mixins/generalMixin";
 import { mapActions, mapGetters } from "vuex";
+import { yandexMap, ymapMarker } from "vue-yandex-maps";
 export default {
+    components: { yandexMap, ymapMarker },
     props: {
         stockData: {
             type: Object,
@@ -105,9 +116,13 @@ export default {
     mixins: [favouritePharmacyMixin],
     data() {
         return {
+            cardClicked: false,
             pharmacySchedule: [],
             stockCardHovered: false,
             stockCardClicked: false,
+            mapCoords: [55.021588, 82.973082],
+            mapControls: ["fullscreenControl"],
+            mapZoom: 16,
         };
     },
     methods: {
@@ -116,6 +131,7 @@ export default {
             this.pharmacySchedule = this.pharmacyData.workingHours.map((item) => `${item.open} - ${item.close}`);
         },
         toggleStockCard() {
+            this.cardClicked = true;
             this.$refs.stockCardBottom.classList.toggle("stock-bottom--active");
             this.stockCardClicked = !this.stockCardClicked;
         },
@@ -145,6 +161,12 @@ export default {
         },
         formatMetro() {
             return this.pharmacyData.metro.join(", ");
+        },
+        pharmacyLocationLink() {
+            return (
+                this.pharmacyData.location.link ??
+                `https://yandex.ru/maps/?pt=${this.mapCoords[1]},${this.mapCoords[0]}&z=18&l=map`
+            );
         },
     },
     mounted() {
@@ -398,10 +420,9 @@ export default {
 }
 
 .stock__map {
-    display: block;
-    width: 50%;
-    object-fit: cover;
-    border-radius: 10px 10px 10px 10px;
+    width: 51.5%;
+    height: 200px;
+    border-radius: 10px;
     margin: 20px 0;
 }
 
@@ -410,6 +431,8 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     margin: 20px 0;
+    width: 50%;
+    gap: 20px;
 }
 
 .stock__pharmacy-info {

@@ -24,4 +24,6 @@ router.patch("/products/:id/views", productController.incrementViews);
 router.post("/products", stockController.getFavouriteProducts);
 router.post("/pharmacies", pharmacyController.getFavouritePharmacies);
 
+router.get("/random", productController.getRandom);
+
 module.exports = router;

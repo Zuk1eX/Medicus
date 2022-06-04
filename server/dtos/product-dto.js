@@ -3,6 +3,7 @@ module.exports = class ProductDto {
         this._id = model._id.toString();
         this.fullTitle = `${model.title}, ${model.dosage}, ${model.form}, ${model.quantity}`;
         this.title = model.title;
+        this.description = `${model.form}, ${model.dosage}, ${model.quantity}`;
         this.form = model.form;
         this.dosage = model.dosage;
         this.quantity = model.quantity;

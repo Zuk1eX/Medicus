@@ -17,10 +17,7 @@
         </p>
         <p class="overlay-card__prices-range" v-show="!productData.minPrice">—</p>
         <div class="overlay-card__btn" @click="searchOverlayDisable">
-            <router-link
-                :to="{ name: 'product', params: { id: productData._id } }"
-                class="overlay-card__link"
-            ></router-link>
+            <div class="overlay-card__link"></div>
         </div>
     </router-link>
 </template>
@@ -34,6 +31,13 @@ export default {
     },
     methods: {
         ...mapMutations(["searchOverlayDisable"]),
+        addHistoryQuery() {
+            const historyQueries = JSON.parse(localStorage.historyQueries);
+            if (!historyQueries.find((item) => item === this.productData.title)) {
+                historyQueries.push(this.productData.title);
+            }
+            localStorage.historyQueries = JSON.stringify(historyQueries.reverse());
+        },
     },
 };
 </script>

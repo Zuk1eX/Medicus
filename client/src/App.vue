@@ -3,10 +3,11 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 export default {
     methods: {
-        ...mapMutations(["setFavouriteProducts", "setFavouritePharmacies"]),
+        ...mapMutations(["setFavouriteProducts", "setFavouritePharmacies", "setHistoryProducts", "setHistoryQueries"]),
+        ...mapActions(["getRandomQueries"]),
     },
     computed: {
         ...mapGetters(["searchOverlayActive"]),
@@ -25,8 +26,19 @@ export default {
         if (!localStorage.favouritePharmacies) {
             localStorage.favouritePharmacies = "[]";
         }
+        if (!localStorage.historyQueries) {
+            localStorage.historyQueries = "[]";
+        }
+        if (!localStorage.historyProducts) {
+            localStorage.historyProducts = "[]";
+        }
+        if (!JSON.parse(localStorage.historyQueries).length) {
+            this.getRandomQueries();
+        }
         this.setFavouriteProducts(JSON.parse(localStorage.favouriteProducts));
         this.setFavouritePharmacies(JSON.parse(localStorage.favouritePharmacies));
+        this.setHistoryProducts(JSON.parse(localStorage.historyProducts));
+        this.setHistoryQueries(JSON.parse(localStorage.historyQueries));
     },
 };
 </script>
@@ -106,5 +118,9 @@ body {
     to {
         stroke-dashoffset: 0;
     }
+}
+
+.ymaps-2-1-79-gototech {
+    display: none !important;
 }
 </style>

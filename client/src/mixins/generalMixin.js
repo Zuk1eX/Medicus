@@ -43,3 +43,11 @@ export const favouritePharmacyMixin = {
         },
     },
 };
+
+// export const historyQueriesMixin = {
+//     methods: {
+//         addHistoryQuery() {
+
+//         }
+//     }
+// };

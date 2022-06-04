@@ -19,15 +19,35 @@
                         ref="searchInput"
                     />
                     <router-link :to="searchText ? { name: 'searchResults', query: { text: this.searchText } } : ''">
-                        <button class="search-box__btn" ref="searchButton" @click="searchOverlayDisable"></button>
+                        <button
+                            class="search-box__btn"
+                            ref="searchButton"
+                            @click="searchOverlayDisable(), addHistoryQuery(searchText)"
+                        ></button>
                     </router-link>
                 </div>
                 <div class="search-recent">
                     <div class="recent-btns">
-                        <button class="recent__btn">Отривин</button>
-                        <button class="recent__btn">Гриппферон</button>
-                        <button class="recent__btn">Но-шпа</button>
-                        <button class="recent__btn">Бронхо-мунал</button>
+                        <button
+                            class="recent__btn"
+                            v-show="!historyQueries.length"
+                            v-for="query in randomQueries"
+                            :key="query"
+                            :title="query"
+                            @click="recentButtonActions(query)"
+                        >
+                            {{ query }}
+                        </button>
+                        <button
+                            class="recent__btn"
+                            v-show="historyQueries.length"
+                            v-for="query in historyQueries"
+                            :key="query"
+                            :title="query"
+                            @click="recentButtonActions(query)"
+                        >
+                            {{ query }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -35,26 +55,45 @@
                 <router-link :to="{ name: 'favourite' }" class="search__btn favourite__btn">
                     <img :src="require('@/assets/icons/favourite.svg')" alt="" class="search-btn__icon--favourite" />
                 </router-link>
-                <button class="search__btn history__btn">
+                <button
+                    class="search__btn history__btn"
+                    @click="
+                        popupActive = true;
+                        popupActiveTimer = null;
+                    "
+                >
                     <img :src="require('@/assets/icons/history.svg')" alt="" class="search-btn__icon--history" />
                 </button>
+                <history-popup :popup-active-timer="popupActiveTimer" @popup-active="changePopupActive"></history-popup>
             </div>
         </div>
         <search-overlay></search-overlay>
     </header>
 </template>
 <script>
+import { computed } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import SearchOverlay from "./SearchOverlay.vue";
+import HistoryPopup from "./HistoryPopup.vue";
 export default {
-    components: { SearchOverlay },
+    components: { SearchOverlay, HistoryPopup },
+    data() {
+        return {
+            popupActive: false,
+            popupActiveTimer: null,
+        };
+    },
+    provide() {
+        return {
+            popupActive: computed(() => this.popupActive),
+        };
+    },
     created() {
         window.addEventListener("scroll", this.handleScroll);
     },
     methods: {
         ...mapMutations(["searchOverlayDisable", "searchOverlayEnable", "changeSearchLogoScroll", "changeSearchText"]),
-        ...mapActions(["updateSearchText"]),
-
+        ...mapActions(["updateSearchText", "getRandomQueries", "addHistoryQuery"]),
         setSearchText(event) {
             this.updateSearchText(event.target.value);
         },
@@ -91,24 +130,48 @@ export default {
                 document.querySelector(".extra").classList.remove("extra--scroll");
                 document.querySelector(".search-recent").classList.remove("search-recent--scroll");
             }
+            if (this.popupActive && !this.popupActiveTimer) {
+                this.popupActiveTimer = setTimeout(() => {
+                    this.popupActive = false;
+                }, 1000);
+            }
+        },
+        changePopupActive(value) {
+            this.popupActive = value;
+            this.popupActiveTimer = null;
+        },
+        recentButtonActions(query) {
+            this.changeSearchText(query);
+            this.searchOverlayEnable();
+            this.$nextTick(() => {
+                this.$refs.searchInput.focus();
+            });
         },
     },
     computed: {
-        ...mapGetters(["searchText", "searchOverlayActive"]),
+        ...mapGetters(["searchText", "searchOverlayActive", "historyQueries", "randomQueries"]),
     },
-
     watch: {
         searchOverlayActive() {
             this.setSearchButton();
         },
     },
     mounted() {
-        // window.addEventListener("scroll", this.handleScroll);
         this.setSearchButton();
     },
 };
 </script>
 <style lang="css">
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.1s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
 .header {
     margin-bottom: 45px;
     padding: 30px 0;
@@ -256,7 +319,10 @@ export default {
     font-size: 16px;
     font-weight: 300;
     line-height: 85%;
+    white-space: nowrap;
     text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 225px;
 }
 
 .search-btns {
@@ -273,10 +339,132 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 7;
+    z-index: 8;
 }
 
 .search-btn__icon--favourite {
     padding-top: 2px;
+}
+
+.popup {
+    z-index: 7;
+    position: absolute;
+    /* width: 100%;
+  height: 100%; */
+}
+
+.history-popup {
+}
+
+.popup__back {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    /* background: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), rgba(86, 128, 233, 0.2); */
+}
+
+.popup__body {
+    /* position: relative; */
+    position: absolute;
+    height: 400px;
+    width: 400px;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 60px rgba(86, 128, 233, 0.5);
+    border-radius: 16px;
+    padding: 10px;
+    overflow-y: auto;
+    /* margin-left: auto; */
+    top: 67px;
+    /* right: 0; */
+    right: -134px;
+}
+
+.popup__body::-webkit-scrollbar {
+    width: 14px;
+}
+
+.popup__body::-webkit-scrollbar-track {
+    background-color: rgba(86, 128, 233, 0.3);
+    background-clip: content-box;
+    border-right: 8px solid transparent;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-radius: 5px;
+}
+
+.popup__body::-webkit-scrollbar-thumb {
+    background-color: #5680e9;
+    border-radius: 5px;
+    background-clip: content-box;
+    border-right: 8px solid transparent;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+}
+
+.popup__cards {
+    display: flex;
+    flex-direction: column;
+}
+
+.popup-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.popup-card:hover {
+    background-color: rgba(86, 128, 233, 0.3);
+}
+
+.popup-card:hover .popup-card__link {
+    opacity: 1;
+}
+
+.popup-card__main {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.popup-card__title {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.popup-card__description {
+    font-size: 16px;
+    color: #6f6f6f;
+}
+
+.popup-card__btn {
+}
+
+.popup-card__link {
+    width: 28px;
+    height: 28px;
+    background-color: #5680e9;
+    border-radius: 50vmin;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url("@/assets/icons/arrow-history.svg") center no-repeat;
+    transition: opacity 0.1s ease;
+    opacity: 0;
+}
+
+.history-empty {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
 }
 </style>

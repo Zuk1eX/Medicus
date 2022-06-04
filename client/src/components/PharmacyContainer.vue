@@ -1,6 +1,6 @@
 <template>
     <div class="container section-pharmacy">
-        <h2 class="pharmacy__title">{{ pharmacyData.title }}</h2>
+        <h2 class="pharmacy__title">Аптека {{ pharmacyData.title }}</h2>
         <div class="pharmacy__block">
             <img :src="require('@/assets/imgs/product-picture.png')" alt="" class="pharmacy__img" />
             <div class="pharmacy__info pharmacy__info--left">
@@ -30,7 +30,7 @@
                     <button class="pharmacy__favourite" @click="toggleFavouritePharmacy">
                         <img :src="pharmacyFavouriteIcon" alt="" />
                     </button>
-                    <a href="http://map.ru" target="_blank" class="pharmacy__link">На карте</a>
+                    <a :href="pharmacyLocationLink" target="_blank" class="pharmacy__link">На карте</a>
                 </div>
             </div>
             <div class="pharmacy__info pharmacy__info--right">
@@ -55,19 +55,24 @@
                 <div class="pharmacy-description">
                     <p class="description__title">Как добраться:</p>
                     <p class="description__inner">
-                        {{pharmacyData.locationDescr}}
+                        {{ pharmacyData.locationDescr }}
                     </p>
                 </div>
             </div>
         </div>
-        <img :src="require('@/assets/imgs/map.png')" alt="" class="pharmacy__map" />
+        <!-- <img :src="require('@/assets/imgs/map.png')" alt="" class="pharmacy__map" /> -->
+        <yandex-map class="pharmacy__map" :coords="mapCoords" :controls="mapControls" :zoom="mapZoom">
+            <ymap-marker :coords="mapCoords" marker-id="1" :hint-content="`Аптека ${pharmacyData.title}`" />
+        </yandex-map>
     </div>
 </template>
 <script>
 import { favouritePharmacyMixin } from "@/mixins/generalMixin";
 import { mapActions, mapGetters } from "vuex";
+import { yandexMap, ymapMarker } from "vue-yandex-maps";
 export default {
     name: "PharmacyContainer",
+    components: { yandexMap, ymapMarker },
     props: {
         pharmacyId: {
             type: String || [String],
@@ -80,6 +85,9 @@ export default {
     data() {
         return {
             pharmacySchedule: [],
+            mapCoords: [55.021588, 82.973082],
+            mapControls: ["fullscreenControl"],
+            mapZoom: 16,
         };
     },
     methods: {
@@ -101,6 +109,12 @@ export default {
         },
         formatSite() {
             return `http://${this.pharmacyData.site.slice(4)}`;
+        },
+        pharmacyLocationLink() {
+            return (
+                this.pharmacyData.location.link ??
+                `https://yandex.ru/maps/?pt=${this.mapCoords[1]},${this.mapCoords[0]}&z=18&l=map`
+            );
         },
     },
     mounted() {

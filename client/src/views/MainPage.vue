@@ -79,7 +79,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 export default {
     components: { SearchHeader, ProductCard, FaqContainer },
     methods: {
-        ...mapMutations(["changeLoadingState"]),
+        ...mapMutations(["changeLoadingState", "changeSearchText"]),
         ...mapActions(["getProductsPopularAPI"]),
         getProducts() {
             this.changeLoadingState(true);
@@ -98,6 +98,7 @@ export default {
         },
     },
     mounted() {
+        this.changeSearchText("");
         if (!this.productsCount) {
             this.getProducts();
         }

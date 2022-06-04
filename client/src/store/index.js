@@ -6,6 +6,7 @@ import searchResults from "./searchResults";
 import productActionResults from "./productActionResults";
 import favouriteProducts from "./favouriteProducts";
 import favouritePharmacies from "./favouritePharmacies";
+import history from "./history";
 import product from "./product";
 import stocks from "./stocks";
 import pharmacy from "./pharmacy";
@@ -104,6 +105,7 @@ export default createStore({
         productActionResults,
         favouriteProducts,
         favouritePharmacies,
+        history,
         product,
         stocks,
         pharmacy,

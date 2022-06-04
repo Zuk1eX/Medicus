@@ -23,7 +23,7 @@ export default {
     },
     methods: {
         ...mapMutations(["changeLoadingProductData", "clearProductData", "changeLoadingStocksData", "clearStocksData"]),
-        ...mapActions(["getProductDataAPI", "getStocksDataAPI", "incrementProductViews"]),
+        ...mapActions(["getProductDataAPI", "getStocksDataAPI", "incrementProductViews", "addHistoryProduct"]),
         getProductData() {
             this.clearProductData();
             this.changeLoadingProductData(true);
@@ -45,9 +45,19 @@ export default {
         plusProductView() {
             this.incrementProductViews(this.productId);
         },
+        async addProductToHistory() {
+            while (!this.productData.title) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+            }
+            this.addHistoryProduct({
+                _id: this.productId,
+                title: this.productData.title,
+                description: this.productData.description,
+            });
+        },
     },
     computed: {
-        ...mapGetters(["productData", "loadingProductData", "stocksData", "loadingStocksData"]),
+        ...mapGetters(["productData", "loadingProductData", "stocksData", "loadingStocksData", "historyProducts"]),
         productDataEmpty() {
             return !Object.getOwnPropertyNames(this.productData).length;
         },
@@ -72,6 +82,7 @@ export default {
             this.getProductData();
             this.getStocksData();
         }
+        this.addProductToHistory();
     },
 };
 </script>

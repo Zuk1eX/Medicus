@@ -10,6 +10,9 @@ const locationSchema = new Schema({
         type: [Number],
         required: true,
     },
+    link: {
+        type: String,
+    },
 });
 
 const scheduleSchema = new Schema({
