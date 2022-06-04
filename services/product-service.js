@@ -35,6 +35,32 @@ class ProductService {
             return null;
         }
     }
+
+    async getRandomProductsTitles() {
+        try {
+            let titles = await productModel.aggregate([
+                {
+                    $group: {
+                        _id: "$title",
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        title: "$_id",
+                    },
+                },
+                {
+                    $sample: {
+                        size: 4,
+                    },
+                },
+            ]);
+            return titles;
+        } catch (e) {
+            return null;
+        }
+    }
 }
 
 module.exports = new ProductService();

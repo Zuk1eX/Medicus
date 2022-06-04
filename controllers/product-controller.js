@@ -27,6 +27,16 @@ class ProductController {
             next(e);
         }
     }
+
+    async getRandom(req, res, next) {
+        try {
+            const productsTitles =
+                await productService.getRandomProductsTitles();
+            return res.json(productsTitles);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 module.exports = new ProductController();
