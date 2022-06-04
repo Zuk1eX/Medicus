@@ -7,15 +7,20 @@
                     История просмотра<br />лекарств пуста
                 </div>
                 <div class="popup__cards">
-                    <div class="popup-card" v-for="product in historyProducts" :key="product['_id']">
+                    <router-link
+                        class="popup-card"
+                        v-for="product in historyProducts"
+                        :key="product['_id']"
+                        :to="{ name: 'product', params: { id: product['_id'] } }"
+                    >
                         <div class="popup-card__main">
                             <p class="popup-card__title">{{ product["title"] }}</p>
                             <p class="popup-card__description">{{ product["description"] }}</p>
                         </div>
                         <div class="popup-card__btn">
-                            <a href="/product-:id" class="popup-card__link"></a>
+                            <div class="popup-card__link"></div>
                         </div>
-                    </div>
+                    </router-link>
                 </div>
             </div>
         </div>

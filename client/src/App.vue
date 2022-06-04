@@ -123,4 +123,8 @@ body {
 .ymaps-2-1-79-gototech {
     display: none !important;
 }
+
+.observer {
+    height: 50px;
+}
 </style>

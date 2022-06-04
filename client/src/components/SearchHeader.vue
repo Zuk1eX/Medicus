@@ -16,6 +16,7 @@
                         @focus="setSearchText"
                         @input="setSearchText"
                         @keydown.enter="openResults"
+                        @keydown.escape="searchOverlayDisable"
                         ref="searchInput"
                     />
                     <router-link :to="searchText ? { name: 'searchResults', query: { text: this.searchText } } : ''">
@@ -95,7 +96,10 @@ export default {
         ...mapMutations(["searchOverlayDisable", "searchOverlayEnable", "changeSearchLogoScroll", "changeSearchText"]),
         ...mapActions(["updateSearchText", "getRandomQueries", "addHistoryQuery"]),
         setSearchText(event) {
-            this.updateSearchText(event.target.value);
+            if (event.target.value.startsWith(" ")) {
+                event.target.value = "";
+            }
+            this.updateSearchText(event.target.value.trim());
         },
         setSearchButton() {
             const btn = this.$refs.searchButton;

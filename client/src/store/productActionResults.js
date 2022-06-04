@@ -19,6 +19,9 @@ export default {
         setProductActionResults(state, value) {
             state.productActionResults = value;
         },
+        pushProductActionResults(state, value) {
+            state.productActionResults.results.results.push(...value);
+        },
         clearProductActionResults(state) {
             state.productActionResults.property = {};
             state.productActionResults.results.results.length = 0;
@@ -26,11 +29,11 @@ export default {
         },
     },
     actions: {
-        async getProductFormsAPI({ commit }, productId, params) {
+        async getProductFormsAPI({ commit }, params) {
             commit("changeLoadingState", true);
             try {
-                const products = await axios.get(`/products/${productId}/forms`, {
-                    params,
+                const products = await axios.get(`/products/${params[0]}/forms`, {
+                    params: params[1],
                 });
                 commit("setProductActionResults", products.data);
                 commit("changeLoadingState", false);
@@ -40,11 +43,11 @@ export default {
                 throw error;
             }
         },
-        async getProductAnalogsAPI({ commit }, productId, params) {
+        async getProductAnalogsAPI({ commit }, params) {
             commit("changeLoadingState", true);
             try {
-                const products = await axios.get(`/products/${productId}/analogs`, {
-                    params,
+                const products = await axios.get(`/products/${params[0]}/analogs`, {
+                    params: params[1],
                 });
                 commit("setProductActionResults", products.data);
                 commit("changeLoadingState", false);
@@ -54,13 +57,55 @@ export default {
                 throw error;
             }
         },
-        async getProductSynonimsAPI({ commit }, productId, params) {
+        async getProductSynonimsAPI({ commit }, params) {
             commit("changeLoadingState", true);
             try {
-                const products = await axios.get(`/products/${productId}/synonims`, {
-                    params,
+                const products = await axios.get(`/products/${params[0]}/synonims`, {
+                    params: params[1],
                 });
                 commit("setProductActionResults", products.data);
+                commit("changeLoadingState", false);
+                return products.data;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
+        async getMoreProductFormsAPI({ commit }, params) {
+            commit("changeLoadingState", true);
+            try {
+                const products = await axios.get(`/products/${params[0]}/forms`, {
+                    params: params[1],
+                });
+                commit("pushProductActionResults", products.data.results.results);
+                commit("changeLoadingState", false);
+                return products.data;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
+        async getMoreProductAnalogsAPI({ commit }, params) {
+            commit("changeLoadingState", true);
+            try {
+                const products = await axios.get(`/products/${params[0]}/analogs`, {
+                    params: params[1],
+                });
+                commit("pushProductActionResults", products.data.results.results);
+                commit("changeLoadingState", false);
+                return products.data;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
+        async getMoreProductSynonimsAPI({ commit }, params) {
+            commit("changeLoadingState", true);
+            try {
+                const products = await axios.get(`/products/${params[0]}/synonims`, {
+                    params: params[1],
+                });
+                commit("pushProductActionResults", products.data.results.results);
                 commit("changeLoadingState", false);
                 return products.data;
             } catch (error) {

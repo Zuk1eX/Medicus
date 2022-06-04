@@ -120,7 +120,9 @@ export default {
             pharmacySchedule: [],
             stockCardHovered: false,
             stockCardClicked: false,
-            mapCoords: [55.021588, 82.973082],
+            mapCoords: this.stockData.pharmacy.location.coordinates.length
+                ? this.stockData.pharmacy.location.coordinates
+                : [55.021588, 82.973082],
             mapControls: ["fullscreenControl"],
             mapZoom: 16,
         };

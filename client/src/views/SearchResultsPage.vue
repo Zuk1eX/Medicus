@@ -28,7 +28,7 @@
             </div>
         </div>
     </div>
-    <div class="container section-product-cards" v-show="productsCount && !loadingState">
+    <div class="container section-product-cards" v-show="productsCount">
         <product-card
             v-for="product in searchProductsResults.results"
             :key="product['item']['_id']"
@@ -48,6 +48,7 @@
     <p class="section-empty" v-show="!productsCount && !loadingState && !pageUnloaded">
         Результатов по запросу не найдено
     </p>
+    <div v-intersection="loadMoreProducts" class="observer" v-if="productsCount && !loadingState"></div>
 </template>
 <script>
 import { nounMixin } from "@/mixins/generalMixin";
@@ -69,48 +70,68 @@ export default {
             productNounsForms: ["товар", "товара", "товаров"],
             searchNounsForms: ["Найден", "Найдено", "Найдено"],
             currentPage: 1,
+            limit: 12,
         };
     },
     methods: {
         ...mapMutations(["changeLoadingState", "clearSearchProductsResults"]),
-        ...mapActions(["getSearchProductsResultsAPI"]),
+        ...mapActions(["getSearchProductsResultsAPI", "getMoreSearchProductsResultsAPI"]),
         getProducts() {
             this.changeLoadingState(true);
             setTimeout(() => {
                 this.getSearchProductsResultsAPI({
-                    text: this.searchText || this.$route.query.text,
-                    limit: 12,
+                    text: this.$route.query.text || this.searchText,
+                    limit: this.limit,
                     page: this.currentPage,
                 });
             }, 1000);
         },
+        loadMoreProducts() {
+            if (this.currentPage < this.pageCount) {
+                if (this.currentProductsCount === this.pageOffset) {
+                    this.currentPage++;
+                }
+                this.changeLoadingState(true);
+                setTimeout(() => {
+                    this.getMoreSearchProductsResultsAPI({
+                        text: this.searchText || this.$route.query.text,
+                        limit: this.limit,
+                        page: this.currentPage,
+                    });
+                }, 500);
+            }
+        },
     },
     computed: {
-        ...mapGetters(["searchProductsResults", "searchText", "loadingState"]),
+        ...mapGetters(["searchProductsResults", "searchText", "loadingState", "searchedText"]),
         productsCount() {
             return this.searchProductsResults.total.resultsCount;
+        },
+        currentProductsCount() {
+            return this.searchProductsResults.results.length;
+        },
+        pageCount() {
+            return Math.ceil(this.productsCount / this.limit);
+        },
+        pageOffset() {
+            return this.limit * this.currentPage;
         },
     },
     watch: {
         "$route.query"(value) {
             if (value.text) {
+                this.currentPage = 1;
+                this.clearSearchProductsResults();
                 this.getProducts();
             }
         },
-        currentPage() {
-            console.log(1);
-        },
     },
     mounted() {
-        // console.log(this.$router.options.history.state.forward);
-        // if (!this.$router.options.history.state.forward || this.pageRefreshed) {
-        if (!this.productsCount) {
+        if (!this.productsCount || this.$route.query.text !== this.searchedText) {
+            this.currentPage = 1;
+            this.clearSearchProductsResults();
             this.getProducts();
         }
-        // }
-        // if (this.$router.forward.toString()) {
-        //     this.getProducts();
-        // }
     },
 };
 </script>

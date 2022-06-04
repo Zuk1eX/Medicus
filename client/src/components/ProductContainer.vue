@@ -76,9 +76,11 @@ export default {
         //     this.$refs.picture.style.top = -event.offsetY + "px";
         // },
         scalePicture() {
-            this.scalePictureTimer = setTimeout(() => {
-                this.$refs.picture.classList.add("picture--hovered");
-            }, 500);
+            if (this.$refs.picture.src !== "https://i.ibb.co/g90rTSp/picture.png") {
+                this.scalePictureTimer = setTimeout(() => {
+                    this.$refs.picture.classList.add("picture--hovered");
+                }, 500);
+            }
         },
         unscalePicture() {
             clearTimeout(this.scalePictureTimer);

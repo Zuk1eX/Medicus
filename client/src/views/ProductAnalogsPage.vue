@@ -26,7 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="container section-product-cards" v-show="productsCount && !loadingState">
+    <div class="container section-product-cards" v-show="productsCount">
         <product-card
             v-for="product in productActionResultsData.results"
             :key="product['_id']"
@@ -46,6 +46,7 @@
     <p class="section-empty" v-show="!productsCount && !loadingState && !pageUnloaded">
         Результатов по запросу не найдено
     </p>
+    <div v-intersection="loadMoreAnalogs" class="observer" v-if="productsCount && !loadingState"></div>
 </template>
 <script>
 import { nounMixin } from "@/mixins/generalMixin";
@@ -55,33 +56,51 @@ import ProductCard from "@/components/ProductCard.vue";
 export default {
     mixins: [nounMixin],
     components: { SearchHeader, ProductCard },
-    created() {
-        // window.addEventListener("beforeunload", () => {
-        //     this.pageUnloaded = true;
-        //     this.clearProductActionResults();
-        // });
-    },
     data() {
         return {
             pageUnloaded: false,
             productNounsForms: ["товар", "товара", "товаров"],
             searchNounsForms: ["Найден", "Найдено", "Найдено"],
-            currentPage: 1,
             productId: this.$route.params.id,
+            currentPage: 1,
+            limit: 12,
         };
     },
     methods: {
         ...mapMutations(["changeLoadingState", "clearProductActionResults"]),
-        ...mapActions(["getProductAnalogsAPI"]),
+        ...mapActions(["getProductAnalogsAPI", "getMoreProductAnalogsAPI"]),
         getProductAnalogs() {
             this.changeLoadingState(true);
             setTimeout(() => {
-                this.getProductAnalogsAPI(this.productId).catch((e) => {
+                this.getProductAnalogsAPI([
+                    this.productId,
+                    {
+                        limit: this.limit,
+                        page: this.currentPage,
+                    },
+                ]).catch((e) => {
                     if (e.response.status === 404) {
                         this.$router.push({ name: "notFound" });
                     }
                 });
             }, 1000);
+        },
+        loadMoreAnalogs() {
+            if (this.currentPage < this.pageCount) {
+                if (this.currentProductsCount === this.pageOffset) {
+                    this.currentPage++;
+                }
+                this.changeLoadingState(true);
+                setTimeout(() => {
+                    this.getMoreProductAnalogsAPI([
+                        this.productId,
+                        {
+                            limit: this.limit,
+                            page: this.currentPage,
+                        },
+                    ]);
+                }, 500);
+            }
         },
     },
     computed: {
@@ -100,17 +119,28 @@ export default {
         productDataEmpty() {
             return !this.productActionResultsData.results.length;
         },
+        currentProductsCount() {
+            return this.productActionResultsData.results.length;
+        },
+        pageCount() {
+            return Math.ceil(this.productsCount / this.limit);
+        },
+        pageOffset() {
+            return this.limit * this.currentPage;
+        },
     },
     watch: {
         $route(value) {
             if (this.$route.name === "productForms" && value.params.id) {
                 this.productId = this.$route.params.id;
+                this.currentPage = 1;
                 this.getProductAnalogs();
             }
         },
     },
     mounted() {
         if (this.productDataEmpty || this.productPharmgroup !== this.productActionResultsProperty.pharmgroup) {
+            this.currentPage = 1;
             this.getProductAnalogs();
         }
     },

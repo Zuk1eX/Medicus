@@ -85,7 +85,9 @@ export default {
     data() {
         return {
             pharmacySchedule: [],
-            mapCoords: [55.021588, 82.973082],
+            mapCoords: this.pharmacyData.location.coordinates.length
+                ? this.pharmacyData.location.coordinates
+                : [55.021588, 82.973082],
             mapControls: ["fullscreenControl"],
             mapZoom: 16,
         };
@@ -282,11 +284,8 @@ a.bold.site {
 }
 
 .pharmacy__map {
-    display: block;
     width: 100%;
     height: 225px;
-    object-fit: cover;
-    image-rendering: -webkit-optimize-contrast;
     border-radius: 10px;
 }
 </style>
