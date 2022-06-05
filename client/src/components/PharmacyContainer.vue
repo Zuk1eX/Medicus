@@ -100,8 +100,8 @@ export default {
         formatPharmacySchedule() {
             this.pharmacySchedule = this.pharmacyData.workingHours.map((item) => `${item.open} - ${item.close}`);
         },
-        loadMap() {
-            load().then((mapglAPI) => {
+        async loadMap() {
+            await load().then((mapglAPI) => {
                 this.map = new mapglAPI.Map(this.$refs.map, {
                     key: "bfd8bbca-8abf-11ea-b033-5fa57aae2de7",
                     center: this.mapCoords,
@@ -112,6 +112,7 @@ export default {
                     coordinates: this.mapCoords,
                 });
             });
+            this.$refs.map.firstChild.style.borderRadius = "10px";
         },
     },
     computed: {
@@ -129,7 +130,10 @@ export default {
             return `http://${this.pharmacyData.site.slice(4)}`;
         },
         pharmacyLocationLink() {
-            return this.pharmacyData.location.link ?? `https://2gis.ru/geo/${this.mapCoords[0]},${this.mapCoords[1]}`;
+            return (
+                this.pharmacyData.location.link ??
+                `https://yandex.ru/maps/?pt=${this.mapCoords[0]},${this.mapCoords[1]}&z=18&l=map`
+            );
         },
     },
     mounted() {

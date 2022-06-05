@@ -65,7 +65,6 @@ export default {
     },
     mounted() {
         if (this.pharmacyDataEmpty || this.pharmacyId !== this.pharmacyData?._id) {
-            console.log('mounted')
             this.getPharmacyData();
             // this.getStocksData();
         }

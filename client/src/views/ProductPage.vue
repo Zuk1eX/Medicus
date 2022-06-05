@@ -7,17 +7,16 @@
     ></product-container>
     <product-container-sceleton v-show="loadingProductData"></product-container-sceleton>
     <!-- <stocks-container :stocks-data="stocksData" v-show="!loadingStocksData"></stocks-container> -->
-    <stocks-container-test :product-id="productId"></stocks-container-test>
+    <stocks-container :product-id="productId"></stocks-container>
 </template>
 <script>
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import SearchHeader from "@/components/SearchHeader.vue";
 import ProductContainerSceleton from "@/components/ProductContainerSceleton.vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
 import ProductContainer from "@/components/ProductContainer.vue";
 import StocksContainer from "@/components/StocksContainer.vue";
-import StocksContainerTest from "@/components/StocksContainerTest.vue";
 export default {
-    components: { SearchHeader, ProductContainerSceleton, ProductContainer, StocksContainer, StocksContainerTest },
+    components: { SearchHeader, ProductContainerSceleton, ProductContainer, StocksContainer },
     data() {
         return {
             productId: this.$route.params.id,
