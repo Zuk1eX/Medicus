@@ -1,113 +1,123 @@
 <template>
-    <div class="stock-card" ref="stockCard" @mouseover="stockCardHovered = true" @mouseleave="stockCardHovered = false">
-        <div class="stock-top">
-            <div class="stock-main">
-                <img :src="pharmacyData.imageUrl" alt="" class="stock__img" />
-                <div class="stock-description">
-                    <h3 class="stock__title">{{ pharmacyData.title }}</h3>
-                    <div class="stock-addresses">
-                        <p class="stock__address">{{ pharmacyData.fullAddress }}</p>
-                        <p class="stock__metro">{{ formatMetro }}</p>
+    <keep-alive>
+        <div
+            class="stock-card"
+            ref="stockCard"
+            @mouseover="stockCardHovered = true"
+            @mouseleave="stockCardHovered = false"
+        >
+            <div class="stock-top">
+                <div class="stock-main">
+                    <img :src="pharmacyData.imageUrl" alt="" class="stock__img" />
+                    <div class="stock-description">
+                        <h3 class="stock__title">{{ pharmacyData.title }}</h3>
+                        <div class="stock-addresses">
+                            <p class="stock__address">{{ pharmacyData.fullAddress }}</p>
+                            <p class="stock__metro">{{ formatMetro }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <button class="stock-favourite" @click="toggleFavouritePharmacy">
-                <img :src="pharmacyFavouriteIcon" alt="" />
-            </button>
-            <div class="stock-separator"></div>
-            <div class="stock-mods">
+                <button class="stock-favourite" @click="toggleFavouritePharmacy">
+                    <img :src="pharmacyFavouriteIcon" alt="" />
+                </button>
+                <div class="stock-separator"></div>
+                <div class="stock-mods">
+                    <div
+                        title="Аптека предоставляет скидку на товар"
+                        class="stock__mod--discount"
+                        :class="{
+                            stock__mod: stockData.isDiscounted,
+                            'stock__mod--inactive': !stockData.isDiscounted,
+                        }"
+                    ></div>
+                    <div
+                        title="Аптека работает в режиме 24/7"
+                        class="stock__mod--247"
+                        :class="{
+                            stock__mod: pharmacyData.is247,
+                            'stock__mod--inactive': !pharmacyData.is247,
+                        }"
+                    ></div>
+                </div>
+                <div class="stock-separator"></div>
+                <div class="stock-contacts">
+                    <a :href="`tel:${pharmacyData.phone}`" class="stock__phone">{{ formatPhone }}</a>
+                    <a :href="`http://${pharmacyData.site.slice(4)}`" target="_blank" class="stock__site">{{
+                        pharmacyData.site
+                    }}</a>
+                </div>
+                <div class="stock-separator"></div>
+                <p class="stock__price">{{ formatPrice }}</p>
                 <div
-                    title="Аптека предоставляет скидку на товар"
-                    class="stock__mod--discount"
-                    :class="{
-                        stock__mod: stockData.isDiscounted,
-                        'stock__mod--inactive': !stockData.isDiscounted,
-                    }"
-                ></div>
-                <div
-                    title="Аптека работает в режиме 24/7"
-                    class="stock__mod--247"
-                    :class="{
-                        stock__mod: pharmacyData.is247,
-                        'stock__mod--inactive': !pharmacyData.is247,
-                    }"
-                ></div>
+                    class="stock-more"
+                    :class="{ 'stock-more--visible': stockCardHovered, 'stock-more--active': stockCardClicked }"
+                    @click="toggleStockCard"
+                >
+                    <div
+                        class="arrow-more"
+                        :class="{ 'arrow-more--visible': stockCardHovered, 'arrow-more--active': stockCardClicked }"
+                    ></div>
+                </div>
             </div>
-            <div class="stock-separator"></div>
-            <div class="stock-contacts">
-                <a :href="`tel:${pharmacyData.phone}`" class="stock__phone">{{ formatPhone }}</a>
-                <a :href="`http://${pharmacyData.site.slice(4)}`" target="_blank" class="stock__site">{{
-                    pharmacyData.site
-                }}</a>
-            </div>
-            <div class="stock-separator"></div>
-            <p class="stock__price">{{ formatPrice }}</p>
-            <div
-                class="stock-more"
-                :class="{ 'stock-more--visible': stockCardHovered, 'stock-more--active': stockCardClicked }"
-                @click="toggleStockCard"
-            >
-                <div
-                    class="arrow-more"
-                    :class="{ 'arrow-more--visible': stockCardHovered, 'arrow-more--active': stockCardClicked }"
-                ></div>
-            </div>
-        </div>
-        <div class="stock-bottom" ref="stockCardBottom">
-            <!-- <img :src="require('@/assets/imgs/map-mini.png')" alt="" class="stock__map" /> -->
-            <Suspense v-if="cardClicked">
-                <template #default>
-                    <yandex-map class="stock__map" :coords="mapCoords" :controls="mapControls" :zoom="mapZoom">
+            <div class="stock-bottom" ref="stockCardBottom">
+                <!-- <img :src="require('@/assets/imgs/map-mini.png')" alt="" class="stock__map" /> -->
+                <!-- <Suspense v-if="cardClicked">
+                <template #default> -->
+                <!-- <yandex-map class="stock__map" :coords="mapCoords" :controls="mapControls" :zoom="mapZoom">
                         <ymap-marker
                             :coords="mapCoords"
                             marker-id="1"
                             :hint-content="`Аптека ${pharmacyData.title}`"
-                        /> </yandex-map></template
-            ></Suspense>
-            <div class="stock-bottom__right">
-                <div class="stock__pharmacy-info">
-                    <div class="stock__pharmacy-schedule">
-                        <p class="schedule__title">Режим работы:</p>
-                        <div class="schedule__inner" v-show="!pharmacyData.is247">
-                            <div class="schedule__days">
-                                <p>ПН-ПТ</p>
-                                <p>СБ</p>
-                                <p>ВС</p>
+                        /> </yandex-map></template -->
+                <div id="stock__map" ref="map" v-if="cardClicked"></div>
+                <!-- </template
+            ></Suspense> -->
+                <div class="stock-bottom__right">
+                    <div class="stock__pharmacy-info">
+                        <div class="stock__pharmacy-schedule">
+                            <p class="schedule__title">Режим работы:</p>
+                            <div class="schedule__inner" v-show="!pharmacyData.is247">
+                                <div class="schedule__days">
+                                    <p>ПН-ПТ</p>
+                                    <p>СБ</p>
+                                    <p>ВС</p>
+                                </div>
+                                <div class="schedule__hours">
+                                    <p>{{ pharmacySchedule[0] }}</p>
+                                    <p>{{ pharmacySchedule[1] }}</p>
+                                    <p>{{ pharmacySchedule[2] }}</p>
+                                </div>
                             </div>
-                            <div class="schedule__hours">
-                                <p>{{ pharmacySchedule[0] }}</p>
-                                <p>{{ pharmacySchedule[1] }}</p>
-                                <p>{{ pharmacySchedule[2] }}</p>
+                            <div class="schedule__inner" v-show="pharmacyData.is247">
+                                <div class="schedule__hours">Круглосуточно</div>
                             </div>
                         </div>
-                        <div class="schedule__inner" v-show="pharmacyData.is247">
-                            <div class="schedule__hours">Круглосуточно</div>
+                        <div class="stock__pharmacy-description">
+                            <p class="description__title">Как добраться:</p>
+                            <p class="description__inner">
+                                м. "Водный Стадион", последний вагон из центра, перейти дорогу, пешком 5 минут, аптека
+                                находится в ЖК "Водный"
+                            </p>
                         </div>
                     </div>
-                    <div class="stock__pharmacy-description">
-                        <p class="description__title">Как добраться:</p>
-                        <p class="description__inner">
-                            м. "Водный Стадион", последний вагон из центра, перейти дорогу, пешком 5 минут, аптека
-                            находится в ЖК "Водный"
-                        </p>
+                    <div class="stock__pharmacy-btns">
+                        <a :href="pharmacyLocationLink" target="_blank" class="map__btn">На карте</a>
+                        <router-link :to="{ name: 'pharmacy', params: { id: pharmacyData._id } }" class="pharmacy__btn">
+                            Ассортимент
+                        </router-link>
                     </div>
-                </div>
-                <div class="stock__pharmacy-btns">
-                    <a :href="pharmacyLocationLink" target="_blank" class="map__btn">На карте</a>
-                    <router-link :to="{ name: 'pharmacy', params: { id: pharmacyData._id } }" class="pharmacy__btn">
-                        Ассортимент
-                    </router-link>
                 </div>
             </div>
         </div>
-    </div>
+    </keep-alive>
 </template>
 <script>
 import { favouritePharmacyMixin } from "@/mixins/generalMixin";
 import { mapActions, mapGetters } from "vuex";
-import { yandexMap, ymapMarker } from "vue-yandex-maps";
+// import { yandexMap, ymapMarker } from "vue-yandex-maps";
+import { load } from "@2gis/mapgl";
 export default {
-    components: { yandexMap, ymapMarker },
+    // components: { yandexMap, ymapMarker },
     props: {
         stockData: {
             type: Object,
@@ -122,9 +132,10 @@ export default {
             stockCardClicked: false,
             mapCoords: this.stockData.pharmacy.location.coordinates.length
                 ? this.stockData.pharmacy.location.coordinates
-                : [55.021588, 82.973082],
+                : [37.565519670240775, 55.74424883789338], //long, lat
             mapControls: ["fullscreenControl"],
             mapZoom: 16,
+            map: null,
         };
     },
     methods: {
@@ -136,6 +147,26 @@ export default {
             this.cardClicked = true;
             this.$refs.stockCardBottom.classList.toggle("stock-bottom--active");
             this.stockCardClicked = !this.stockCardClicked;
+        },
+        loadMap() {
+            load().then((mapglAPI) => {
+                this.map = new mapglAPI.Map(this.$refs.map, {
+                    key: "bfd8bbca-8abf-11ea-b033-5fa57aae2de7",
+                    center: this.mapCoords,
+                    zoom: this.mapZoom,
+                    autoHideOSMCopyright: true,
+                    zoomControl: "bottomLeft",
+                    // floorControl: 'bottomCenter',
+                });
+                new mapglAPI.Marker(this.map, {
+                    coordinates: this.mapCoords,
+                });
+            });
+            this.$nextTick(() => {
+                setTimeout(() => {
+                    this.$refs.map.firstChild.style.borderRadius = "10px";
+                }, 30);
+            });
         },
     },
     computed: {
@@ -165,10 +196,12 @@ export default {
             return this.pharmacyData.metro.join(", ");
         },
         pharmacyLocationLink() {
-            return (
-                this.pharmacyData.location.link ??
-                `https://yandex.ru/maps/?pt=${this.mapCoords[1]},${this.mapCoords[0]}&z=18&l=map`
-            );
+            return this.pharmacyData.location.link ?? `https://2gis.ru/geo/${this.mapCoords[0]},${this.mapCoords[1]}`;
+        },
+    },
+    watch: {
+        cardClicked() {
+            this.$nextTick(this.loadMap);
         },
     },
     mounted() {
@@ -421,11 +454,15 @@ export default {
     transition: all 0.2s cubic-bezier(0.65, 0, 1, 0);
 }
 
-.stock__map {
+#stock__map {
     width: 51.5%;
     height: 200px;
     border-radius: 10px;
     margin: 20px 0;
+}
+
+#stock__map > div {
+    border-radius: 10px;
 }
 
 .stock-bottom__right {

@@ -61,18 +61,20 @@
             </div>
         </div>
         <!-- <img :src="require('@/assets/imgs/map.png')" alt="" class="pharmacy__map" /> -->
-        <yandex-map class="pharmacy__map" :coords="mapCoords" :controls="mapControls" :zoom="mapZoom">
-            <ymap-marker :coords="mapCoords" marker-id="1" :hint-content="`Аптека ${pharmacyData.title}`" />
-        </yandex-map>
+        <!-- <yandex-map class="pharmacy__map" :coords="mapCoords" :controls="mapControls" :zoom="mapZoom" ref="map">
+            <ymap-marker :coords="mapCoords" marker-id="1" :hint-content="`Аптека ${pharmacyData.title}`"></ymap-marker>
+        </yandex-map> -->
+        <div id="pharmacy__map" ref="map"></div>
     </div>
 </template>
 <script>
 import { favouritePharmacyMixin } from "@/mixins/generalMixin";
 import { mapActions, mapGetters } from "vuex";
-import { yandexMap, ymapMarker } from "vue-yandex-maps";
+// import { yandexMap, ymapMarker } from "vue-yandex-maps";
+import { load } from "@2gis/mapgl";
 export default {
     name: "PharmacyContainer",
-    components: { yandexMap, ymapMarker },
+    // components: { yandexMap, ymapMarker },
     props: {
         pharmacyId: {
             type: String || [String],
@@ -87,15 +89,29 @@ export default {
             pharmacySchedule: [],
             mapCoords: this.pharmacyData.location.coordinates.length
                 ? this.pharmacyData.location.coordinates
-                : [55.021588, 82.973082],
+                : [37.565519670240775, 55.74424883789338], //long, lat
             mapControls: ["fullscreenControl"],
             mapZoom: 16,
+            map: null,
         };
     },
     methods: {
         ...mapActions(["addFavouritePharmacy", "removeFavouritePharmacy"]),
         formatPharmacySchedule() {
             this.pharmacySchedule = this.pharmacyData.workingHours.map((item) => `${item.open} - ${item.close}`);
+        },
+        loadMap() {
+            load().then((mapglAPI) => {
+                this.map = new mapglAPI.Map(this.$refs.map, {
+                    key: "bfd8bbca-8abf-11ea-b033-5fa57aae2de7",
+                    center: this.mapCoords,
+                    zoom: this.mapZoom,
+                    autoHideOSMCopyright: true,
+                });
+                new mapglAPI.Marker(this.map, {
+                    coordinates: this.mapCoords,
+                });
+            });
         },
     },
     computed: {
@@ -113,14 +129,12 @@ export default {
             return `http://${this.pharmacyData.site.slice(4)}`;
         },
         pharmacyLocationLink() {
-            return (
-                this.pharmacyData.location.link ??
-                `https://yandex.ru/maps/?pt=${this.mapCoords[1]},${this.mapCoords[0]}&z=18&l=map`
-            );
+            return this.pharmacyData.location.link ?? `https://2gis.ru/geo/${this.mapCoords[0]},${this.mapCoords[1]}`;
         },
     },
     mounted() {
         this.formatPharmacySchedule();
+        this.$nextTick(this.loadMap);
     },
 };
 </script>
@@ -283,7 +297,7 @@ a.bold.site {
     font-size: inherit;
 }
 
-.pharmacy__map {
+#pharmacy__map {
     width: 100%;
     height: 225px;
     border-radius: 10px;

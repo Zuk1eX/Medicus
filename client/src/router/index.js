@@ -62,10 +62,13 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
+    history: createWebHistory(),
     routes,
-    scrollBehavior() {
-        document.getElementById("app").scrollIntoView({ behavior: "smooth" });
+    // scrollBehavior() {
+    //     document.getElementById("app").scrollIntoView({ behavior: "smooth" });
+    // },
+    scrollBehavior(to, from, savedPosition) {
+        return { el: "#app", top: 0, behavior: "smooth" };
     },
     // scrollBehavior(to, from, savedPosition) {
     //     if (savedPosition) {

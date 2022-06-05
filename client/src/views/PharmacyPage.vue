@@ -45,7 +45,7 @@ export default {
         //     this.changeLoadingPharmacyStocksData(true);
         //     setTimeout(() => {
         //         this.getPharmacyStocksDataAPI(this.pharmacyId);
-        //     }, 1000);
+    //     }, 1000);-
         // },
     },
     computed: {
@@ -65,6 +65,7 @@ export default {
     },
     mounted() {
         if (this.pharmacyDataEmpty || this.pharmacyId !== this.pharmacyData?._id) {
+            console.log('mounted')
             this.getPharmacyData();
             // this.getStocksData();
         }

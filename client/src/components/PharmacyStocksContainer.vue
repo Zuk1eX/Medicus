@@ -41,9 +41,7 @@
             <use xlink:href="#loader"></use>
         </svg>
     </div>
-    <p class="section-empty" v-show="!stocksCount && !loadingPharmacyStocksData">
-        Результатов по запросу не найдено
-    </p>
+    <p class="section-empty" v-show="!stocksCount && !loadingPharmacyStocksData">Результатов по запросу не найдено</p>
 </template>
 <script>
 import { nounMixin } from "@/mixins/generalMixin";
@@ -63,10 +61,10 @@ export default {
         },
     },
     // created() {
-        // window.addEventListener("beforeunload", () => {
-        //     this.pageUnloaded = true;
-        //     this.clearSearchProductsResults();
-        // });
+    // window.addEventListener("beforeunload", () => {
+    //     this.pageUnloaded = true;
+    //     this.clearSearchProductsResults();
+    // });
     // },
     data() {
         return {
@@ -89,13 +87,8 @@ export default {
         //         });
         //     }, 1000);
         // },
-        ...mapMutations([
-            "changeLoadingPharmacyData",
-            "clearPharmacyData",
-            "changeLoadingPharmacyStocksData",
-            "clearPharmacyStocksData",
-        ]),
-        ...mapActions(["getPharmacyDataAPI", "getPharmacyStocksDataAPI"]),
+        ...mapMutations(["changeLoadingPharmacyStocksData", "clearPharmacyStocksData"]),
+        ...mapActions(["getPharmacyStocksDataAPI"]),
         getStocksData() {
             this.clearPharmacyStocksData();
             this.changeLoadingPharmacyStocksData(true);
@@ -105,7 +98,7 @@ export default {
         },
     },
     computed: {
-        ...mapGetters(["pharmacyData", "loadingPharmacyData", "pharmacyStocksData", "loadingPharmacyStocksData"]),
+        ...mapGetters(["pharmacyData", "pharmacyStocksData", "loadingPharmacyStocksData"]),
         stocksCount() {
             return this.pharmacyStocksData.total.stocksCount;
         },
@@ -116,9 +109,6 @@ export default {
         //         this.getProducts();
         //     }
         // },
-        currentPage() {
-            console.log(1);
-        },
     },
     mounted() {
         // console.log(this.$router.options.history.state.forward);

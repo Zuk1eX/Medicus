@@ -6,7 +6,8 @@
         v-show="!loadingProductData"
     ></product-container>
     <product-container-sceleton v-show="loadingProductData"></product-container-sceleton>
-    <stocks-container :stocks-data="stocksData" v-show="!loadingStocksData"></stocks-container>
+    <!-- <stocks-container :stocks-data="stocksData" v-show="!loadingStocksData"></stocks-container> -->
+    <stocks-container-test :product-id="productId"></stocks-container-test>
 </template>
 <script>
 import SearchHeader from "@/components/SearchHeader.vue";
@@ -14,8 +15,9 @@ import ProductContainerSceleton from "@/components/ProductContainerSceleton.vue"
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import ProductContainer from "@/components/ProductContainer.vue";
 import StocksContainer from "@/components/StocksContainer.vue";
+import StocksContainerTest from "@/components/StocksContainerTest.vue";
 export default {
-    components: { SearchHeader, ProductContainerSceleton, ProductContainer, StocksContainer },
+    components: { SearchHeader, ProductContainerSceleton, ProductContainer, StocksContainer, StocksContainerTest },
     data() {
         return {
             productId: this.$route.params.id,
@@ -67,7 +69,7 @@ export default {
             if (this.$route.name === "product" && value.params.id) {
                 this.productId = this.$route.params.id;
                 this.getProductData();
-                this.getStocksData();
+                // this.getStocksData();
                 this.plusProductView();
             }
         },
@@ -80,7 +82,7 @@ export default {
     mounted() {
         if (this.productDataEmpty || this.productId !== this.productData?._id) {
             this.getProductData();
-            this.getStocksData();
+            // this.getStocksData();
         }
         this.addProductToHistory();
     },

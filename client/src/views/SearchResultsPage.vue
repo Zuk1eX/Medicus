@@ -12,7 +12,7 @@
             </p>
         </div>
         <div class="separator-bold"></div>
-        <div class="section-sort" v-show="productsCount && !loadingState">
+        <div class="section-sort" v-show="productsCount">
             <p class="sort__title">Сортировать:</p>
             <div class="radio">
                 <input class="custom-radio" type="radio" id="sort-location" name="sort" value="location" />
@@ -119,7 +119,8 @@ export default {
     },
     watch: {
         "$route.query"(value) {
-            if (value.text) {
+            console.log("ertegdfh");
+            if (0) {
                 this.currentPage = 1;
                 this.clearSearchProductsResults();
                 this.getProducts();
@@ -131,6 +132,8 @@ export default {
             this.currentPage = 1;
             this.clearSearchProductsResults();
             this.getProducts();
+        } else {
+            this.currentPage = Math.ceil(this.currentProductsCount / this.limit);
         }
     },
 };

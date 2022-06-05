@@ -12,6 +12,7 @@
                         v-for="product in historyProducts"
                         :key="product['_id']"
                         :to="{ name: 'product', params: { id: product['_id'] } }"
+                        @click="$emit('popupActive', false)"
                     >
                         <div class="popup-card__main">
                             <p class="popup-card__title">{{ product["title"] }}</p>
