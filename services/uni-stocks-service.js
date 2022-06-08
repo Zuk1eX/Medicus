@@ -73,6 +73,7 @@ class UniStocksService {
             { $unwind: { path: "$pharmacy" } },
             {
                 $match: {
+                    "pharmacy.title": { $ne: "admin" },
                     price: { $ne: null },
                 },
             },
@@ -161,7 +162,7 @@ class UniStocksService {
                     price: 1,
                 },
             },
-            
+
             {
                 $facet: {
                     results: [],
