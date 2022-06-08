@@ -54,6 +54,7 @@ class StockService {
     async getAllStocks(sort, direction, limit, offset) {
         const stocks = await uniStocksService.stocksAggregateProduct().facet({
             results: [
+                
                 { $sort: { [sort]: direction } },
                 ...stocksResultsProject,
                 { $skip: offset },

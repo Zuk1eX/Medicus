@@ -36,6 +36,9 @@ export default {
         changeLoadingFavouriteProductsData(state, value) {
             state.loadingFavouriteProductsData = value;
         },
+        // sortFavouriteProducts(state) {
+        //     state.favouriteProductsData.sort()
+        // },
     },
     actions: {
         addFavouriteProduct({ commit, state }, product) {

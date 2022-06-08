@@ -121,7 +121,7 @@ export default {
     height: 225px;
     object-fit: contain;
     border-radius: 10px;
-    image-rendering: -webkit-optimize-contrast;
+    // image-rendering: -webkit-optimize-contrast;
     align-self: start;
     @include after;
 }
@@ -340,11 +340,11 @@ a.bold.site {
 }
 
 .pharmacy__map {
-    display: block;
     width: 100%;
     height: 225px;
     object-fit: cover;
-    image-rendering: -webkit-optimize-contrast;
+    filter: grayscale(1);
+    // image-rendering: -webkit-optimize-contrast;
     border-radius: 10px;
 }
 </style>

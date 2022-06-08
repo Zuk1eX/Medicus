@@ -26,10 +26,10 @@ export default {
         },
     },
     actions: {
-        async getPharmacyStocksDataAPI({ commit }, pharmacyId) {
+        async getPharmacyStocksDataAPI({ commit }, params) {
             commit("changeLoadingPharmacyStocksData", true);
             try {
-                const stocks = await axios.get(`/pharmacies/${pharmacyId}/pricelist`);
+                const stocks = await axios.get(`/pharmacies/${params[0]}/pricelist`, { params: params[1] });
                 commit("setPharmacyStocksData", stocks.data);
                 commit("changeLoadingPharmacyStocksData", false);
                 return stocks.data;

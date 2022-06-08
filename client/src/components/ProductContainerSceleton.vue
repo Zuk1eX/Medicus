@@ -89,7 +89,7 @@ export default {
     width: 225px;
     height: 225px;
     object-fit: contain;
-    image-rendering: -webkit-optimize-contrast;
+    // image-rendering: -webkit-optimize-contrast;
     border-radius: 10px;
     @include after;
 }

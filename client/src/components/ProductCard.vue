@@ -121,7 +121,7 @@ export default {
     border-radius: 10px;
     object-fit: contain;
     margin-bottom: 15px;
-    image-rendering: -webkit-optimize-contrast;
+    /* image-rendering: -webkit-optimize-contrast; */
 }
 
 .card__favourite {

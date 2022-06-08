@@ -113,6 +113,7 @@ export default {
                 });
             });
             this.$refs.map.firstChild.style.borderRadius = "10px";
+            this.$refs.map.firstChild.style.zIndex = "0";
         },
     },
     computed: {
@@ -168,7 +169,7 @@ export default {
     height: 225px;
     object-fit: contain;
     border-radius: 10px;
-    image-rendering: -webkit-optimize-contrast;
+    /* image-rendering: -webkit-optimize-contrast; */
     align-self: start;
 }
 

@@ -142,7 +142,7 @@ export default {
     border-radius: 10px;
     object-fit: contain;
     /* object-fit: cover; */
-    image-rendering: -webkit-optimize-contrast;
+    /* image-rendering: -webkit-optimize-contrast; */
     transition: all 0.3s ease;
     /* transform: scale(1.5) translate(50%, 50%); */
 }

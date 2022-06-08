@@ -27,6 +27,13 @@ export default {
             state.productActionResults.results.results.length = 0;
             state.productActionResults.results.total.resultsCount = 0;
         },
+        clearProductActionResultsProperty(state) {
+            state.productActionResults.property = {};
+        },
+        clearProductActionResultsData(state) {
+            state.productActionResults.results.results.length = 0;
+            state.productActionResults.results.total.resultsCount = 0;
+        },
     },
     actions: {
         async getProductFormsAPI({ commit }, params) {

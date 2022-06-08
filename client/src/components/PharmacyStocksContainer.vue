@@ -8,18 +8,39 @@
             </p>
         </div>
         <div class="separator-bold"></div>
-        <div class="section-sort" v-show="stocksCount && !loadingPharmacyStocksData">
+        <div class="section-sort" v-show="(stocksCount && !loadingPharmacyStocksData) || sortOptions">
             <p class="sort__title">Сортировать:</p>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-location" name="sort" value="location" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-location"
+                    name="sort"
+                    :value="{ sort: 'views', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-location">Сначала популярные</label>
             </div>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-minPrice" name="sort" value="price-min" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-minPrice"
+                    name="sort"
+                    :value="{ sort: 'price', direction: 'asc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-minPrice">Сначала дешевые</label>
             </div>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-maxPrice" name="sort" value="price-max" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-maxPrice"
+                    name="sort"
+                    :value="{ sort: 'price', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-maxPrice">Сначала дорогие</label>
             </div>
         </div>
@@ -72,6 +93,8 @@ export default {
             productNounsForms: ["товар", "товара", "товаров"],
             searchNounsForms: ["Найден", "Найдено", "Найдено"],
             currentPage: 1,
+
+            sortOptions: { sort: "views", direction: "desc" },
         };
     },
     methods: {
@@ -93,7 +116,12 @@ export default {
             this.clearPharmacyStocksData();
             this.changeLoadingPharmacyStocksData(true);
             setTimeout(() => {
-                this.getPharmacyStocksDataAPI(this.pharmacyId);
+                this.getPharmacyStocksDataAPI([
+                    this.pharmacyId,
+                    {
+                        ...this.sortOptions,
+                    },
+                ]);
             }, 1000);
         },
     },
@@ -109,11 +137,19 @@ export default {
         //         this.getProducts();
         //     }
         // },
+        sortOptions() {
+            this.currentPage = 1;
+            this.clearPharmacyStocksData();
+            this.getStocksData();
+        },
     },
     mounted() {
         // console.log(this.$router.options.history.state.forward);
         // if (!this.$router.options.history.state.forward || this.pageRefreshed) {
         if (!this.stocksCount || this.pharmacyId !== this.pharmacyData?._id) {
+            this.currentPage = 1;
+            this.clearPharmacyStocksData();
+
             this.getStocksData();
         }
         // }

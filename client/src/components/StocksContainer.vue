@@ -14,25 +14,46 @@
             </div>
             <div class="separator-bold"></div>
 
-            <div class="section-sort" v-show="stocksCount">
+            <div class="section-sort" v-show="stocksCount || sortOptions">
                 <p class="sort__title">Сортировать:</p>
-                <div class="radio">
-                    <input class="custom-radio" type="radio" id="sort-location" name="sort" value="location" />
+                <!-- <div class="radio">
+                    <input
+                        class="custom-radio"
+                        type="radio"
+                        id="sort-location"
+                        name="sort"
+                        :value="{ sort: 'pharmacy.location', direction: 'asc' }"
+                        v-model="sortOptions"
+                    />
                     <label for="sort-location">Сначала ближайшие</label>
-                </div>
+                </div> -->
                 <div class="radio">
-                    <input class="custom-radio" type="radio" id="sort-minPrice" name="sort" value="price-min" />
+                    <input
+                        class="custom-radio"
+                        type="radio"
+                        id="sort-minPrice"
+                        name="sort"
+                        :value="{ sort: 'price', direction: 'asc' }"
+                        v-model="sortOptions"
+                    />
                     <label for="sort-minPrice">Сначала дешевые</label>
                 </div>
                 <div class="radio">
-                    <input class="custom-radio" type="radio" id="sort-maxPrice" name="sort" value="price-max" />
+                    <input
+                        class="custom-radio"
+                        type="radio"
+                        id="sort-maxPrice"
+                        name="sort"
+                        :value="{ sort: 'price', direction: 'desc' }"
+                        v-model="sortOptions"
+                    />
                     <label for="sort-maxPrice">Сначала дорогие</label>
                 </div>
             </div>
 
-            <div class="section-filters" v-show="stocksCount">
+            <!-- <div class="section-filters" v-show="stocksCount">
                 <p class="filters__title">Фильтровать:</p>
-            </div>
+            </div> -->
         </div>
         <div class="container section-stock-cards" v-show="stocksCount">
             <stock-card v-for="stock in stocksData.stocks" :key="stock['_id']" :stock-data="stock"></stock-card>
@@ -66,6 +87,8 @@ export default {
         return {
             currentPage: 1,
             limit: 4,
+
+            sortOptions: { sort: "price", direction: "asc" },
         };
     },
     methods: {
@@ -80,6 +103,7 @@ export default {
                     {
                         limit: this.limit,
                         page: this.currentPage,
+                        ...this.sortOptions,
                     },
                 ]);
             }, 1000);
@@ -96,6 +120,7 @@ export default {
                         {
                             limit: this.limit,
                             page: this.currentPage,
+                            ...this.sortOptions,
                         },
                     ]);
                 }, 500);
@@ -130,13 +155,23 @@ export default {
     watch: {
         $route(value) {
             if (this.$route.name === "product" && value.params.id) {
+                this.currentPage = 1;
                 this.getStocksData();
             }
+        },
+        sortOptions() {
+            this.currentPage = 1;
+            this.clearStocksData();
+            this.getStocksData();
         },
     },
     mounted() {
         if (!this.stocksCount || this.productId !== this.productData?._id) {
+            this.currentPage = 1;
+            this.clearStocksData();
             this.getStocksData();
+        } else {
+            this.currentPage = Math.ceil(this.currentStocksCount / this.limit);
         }
     },
 };

@@ -28,7 +28,10 @@
                     </router-link>
                 </div>
                 <div class="search-recent">
-                    <div class="recent-btns">
+                    <div class="recent-btns" v-if="!randomQueries.length && !historyQueries.length">
+                        <button class="recent__btn recent__btn--empty">&nbsp;</button>
+                    </div>
+                    <div class="recent-btns" v-else>
                         <button
                             class="recent__btn"
                             v-show="!historyQueries.length"
@@ -327,6 +330,11 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 225px;
+}
+
+.recent__btn--empty {
+    visibility: hidden;
+    opacity: 0;
 }
 
 .search-btns {

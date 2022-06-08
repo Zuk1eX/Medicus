@@ -12,19 +12,51 @@
             </p>
         </div>
         <div class="separator-bold"></div>
-        <div class="section-sort" v-show="productsCount">
+        <div class="section-sort" v-show="productsCount || sortOptions">
             <p class="sort__title">Сортировать:</p>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-location" name="sort" value="location" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-location"
+                    name="sort"
+                    :value="{ sort: 'views', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-location">Сначала популярные</label>
             </div>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-minPrice" name="sort" value="price-min" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-minPrice"
+                    name="sort"
+                    :value="{ sort: 'minPrice', direction: 'asc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-minPrice">Сначала дешевые</label>
             </div>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-maxPrice" name="sort" value="price-max" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-maxPrice"
+                    name="sort"
+                    :value="{ sort: 'minPrice', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-maxPrice">Сначала дорогие</label>
+            </div>
+            <div class="radio">
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-stocksCount"
+                    name="sort"
+                    :value="{ sort: 'stocksCount', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
+                <label for="sort-stocksCount">Сначала в наличии</label>
             </div>
         </div>
     </div>
@@ -71,6 +103,8 @@ export default {
             searchNounsForms: ["Найден", "Найдено", "Найдено"],
             currentPage: 1,
             limit: 12,
+
+            sortOptions: { sort: "views", direction: "desc" },
         };
     },
     methods: {
@@ -83,6 +117,7 @@ export default {
                     text: this.$route.query.text || this.searchText,
                     limit: this.limit,
                     page: this.currentPage,
+                    ...this.sortOptions,
                 });
             }, 1000);
         },
@@ -97,6 +132,7 @@ export default {
                         text: this.searchText || this.$route.query.text,
                         limit: this.limit,
                         page: this.currentPage,
+                        ...this.sortOptions,
                     });
                 }, 500);
             }
@@ -118,13 +154,18 @@ export default {
         },
     },
     watch: {
-        "$route.query"(value) {
-            console.log("ertegdfh");
-            if (0) {
+        "$route.query.text"(value) {
+            console.log(value);
+            if (value) {
                 this.currentPage = 1;
                 this.clearSearchProductsResults();
                 this.getProducts();
             }
+        },
+        sortOptions() {
+            this.currentPage = 1;
+            this.clearSearchProductsResults();
+            this.getProducts();
         },
     },
     mounted() {

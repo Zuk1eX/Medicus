@@ -10,19 +10,51 @@
             </p>
         </div>
         <div class="separator-bold"></div>
-        <div class="section-sort" v-show="productsCount && !loadingState">
+        <div class="section-sort" v-show="(productsCount && !loadingState) || sortOptions">
             <p class="sort__title">Сортировать:</p>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-location" name="sort" value="location" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-location"
+                    name="sort"
+                    :value="{ sort: 'views', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-location">Сначала популярные</label>
             </div>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-minPrice" name="sort" value="price-min" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-minPrice"
+                    name="sort"
+                    :value="{ sort: 'minPrice', direction: 'asc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-minPrice">Сначала дешевые</label>
             </div>
             <div class="radio">
-                <input class="custom-radio" type="radio" id="sort-maxPrice" name="sort" value="price-max" />
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-maxPrice"
+                    name="sort"
+                    :value="{ sort: 'minPrice', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
                 <label for="sort-maxPrice">Сначала дорогие</label>
+            </div>
+            <div class="radio">
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-stocksCount"
+                    name="sort"
+                    :value="{ sort: 'stocksCount', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
+                <label for="sort-stocksCount">Сначала в наличии</label>
             </div>
         </div>
     </div>
@@ -64,10 +96,11 @@ export default {
             productId: this.$route.params.id,
             currentPage: 1,
             limit: 12,
+            sortOptions: { sort: "views", direction: "desc" },
         };
     },
     methods: {
-        ...mapMutations(["changeLoadingState", "clearProductActionResults"]),
+        ...mapMutations(["changeLoadingState", "clearProductActionResults", "clearProductActionResultsData"]),
         ...mapActions(["getProductSynonimsAPI", "getMoreProductSynonimsAPI"]),
         getProductSynonims() {
             this.changeLoadingState(true);
@@ -78,12 +111,11 @@ export default {
                         limit: this.limit,
                         page: this.currentPage,
                     },
-                ])
-                    .catch((e) => {
-                        if (e.response.status === 404) {
-                            this.$router.push({ name: "notFound" });
-                        }
-                    });
+                ]).catch((e) => {
+                    if (e.response.status === 404) {
+                        this.$router.push({ name: "notFound" });
+                    }
+                });
             }, 1000);
         },
         loadMoreSynonims() {
@@ -138,10 +170,17 @@ export default {
                 this.getProductSynonims();
             }
         },
+        sortOptions() {
+            this.currentPage = 1;
+            this.clearProductActionResultsData();
+            this.getProductSynonims();
+        },
     },
     mounted() {
         if (this.productDataEmpty || this.productInn !== this.productActionResultsProperty.inn) {
             this.currentPage = 1;
+            this.clearProductActionResultsData();
+
             this.getProductSynonims();
         }
     },
