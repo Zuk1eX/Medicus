@@ -2,7 +2,7 @@
     <div class="container section-pharmacy">
         <h2 class="pharmacy__title">Аптека {{ pharmacyData.title }}</h2>
         <div class="pharmacy__block">
-            <img :src="require('@/assets/imgs/product-picture.png')" alt="" class="pharmacy__img" />
+            <img :src="pharmacyData.imageUrl" alt="" class="pharmacy__img" />
             <div class="pharmacy__info pharmacy__info--left">
                 <div class="pharmacy__description">
                     <p class="pharmacy__prop">
