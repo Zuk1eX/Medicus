@@ -16,17 +16,19 @@
 
             <div class="section-sort" v-show="stocksCount || sortOptions">
                 <p class="sort__title">Сортировать:</p>
-                <!-- <div class="radio">
+                <div class="radio">
                     <input
                         class="custom-radio"
                         type="radio"
                         id="sort-location"
                         name="sort"
-                        :value="{ sort: 'pharmacy.location', direction: 'asc' }"
+                        :value="{ sort: 'pharmacy.distance', direction: 'asc', coords: userCoords.join(',') }"
+                        :disabled="!userCoords.length"
                         v-model="sortOptions"
+                        ref="locationSort"
                     />
                     <label for="sort-location">Сначала ближайшие</label>
-                </div> -->
+                </div>
                 <div class="radio">
                     <input
                         class="custom-radio"
@@ -92,7 +94,7 @@ export default {
         };
     },
     methods: {
-        ...mapMutations(["changeLoadingStocksData", "clearStocksData"]),
+        ...mapMutations(["changeLoadingStocksData", "clearStocksData", "setUserCoords"]),
         ...mapActions(["getStocksDataAPI", "getMoreStocksDataAPI"]),
         getStocksData() {
             this.clearStocksData();
@@ -133,9 +135,14 @@ export default {
             const { minPrice, maxPrice } = this.stocksData.total;
             return price === 0 ? minPrice : maxPrice;
         },
+        getUserCoords() {
+            navigator.geolocation.getCurrentPosition((pos) =>
+                this.setUserCoords([pos.coords.longitude, pos.coords.latitude])
+            );
+        },
     },
     computed: {
-        ...mapGetters(["productData", "stocksData", "loadingStocksData"]),
+        ...mapGetters(["productData", "stocksData", "loadingStocksData", "userCoords"]),
         formatStocksCount() {
             return new Intl.NumberFormat("ru-RU").format(this.stocksCount);
         },
@@ -253,8 +260,11 @@ export default {
     border-width: 6px;
 }
 
-.custom-radio:disabled + label::before {
-    background-color: #e9ecef;
+.custom-radio:disabled + label::before,
+.custom-radio:disabled + label {
+    border-color: #babbbf;
+    color: #babbbf;
+    cursor: default;
 }
 
 .section-filters {

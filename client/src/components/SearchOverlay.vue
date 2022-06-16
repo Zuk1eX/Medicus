@@ -57,7 +57,7 @@ export default {
         },
         handleScroll(event) {
             if (event.target.scrollTop > 7) {
-                this.$refs.overlayTop.style.zIndex = 1;
+                this.$refs.overlayTop.style.zIndex = 2;
             } else {
                 this.$refs.overlayTop.style.zIndex = 0;
             }

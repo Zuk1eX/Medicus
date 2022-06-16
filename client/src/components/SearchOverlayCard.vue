@@ -49,7 +49,7 @@ export default {
     padding: 10px;
     border-radius: 16px;
     cursor: pointer;
-    transition: box-shadow 0.3s ease;
+    transition: all 0.3s ease;
     z-index: 0;
 }
 
@@ -63,6 +63,7 @@ export default {
 .overlay-card__img {
     width: 80px;
     height: 80px;
+    min-width: 80px;
     border-radius: 6px;
     object-fit: contain;
 }
@@ -108,7 +109,7 @@ export default {
 }
 
 .overlay-card:hover {
-    /* z-index: 1; */
+    z-index: 1;
     box-shadow: 0px 5px 40px rgba(86, 128, 233, 0.7);
 }
 

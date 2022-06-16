@@ -121,6 +121,7 @@ export default {
     border-radius: 10px;
     object-fit: contain;
     margin-bottom: 15px;
+    background-color: #ffffff;
     /* image-rendering: -webkit-optimize-contrast; */
 }
 

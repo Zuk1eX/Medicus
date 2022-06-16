@@ -132,15 +132,17 @@ export default {
 .picture--hovered {
     transform: scale(1.7);
     box-shadow: 0px 0px 15px rgba(86, 128, 233, 0.5);
+    padding: 10px;
 }
 
 .product__img {
     position: absolute;
     display: block;
-    /* width: 525px;
-    height: 525px; */
+    width: 100%;
+    height: 100%;
     border-radius: 10px;
     object-fit: contain;
+    background-color: #ffffff;
     /* object-fit: cover; */
     /* image-rendering: -webkit-optimize-contrast; */
     transition: all 0.3s ease;

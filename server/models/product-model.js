@@ -51,7 +51,7 @@ const ProductSchema = new Schema(
         },
         imageUrl: {
             type: String,
-            default: "https://imgholder.ru/512*512/8493a8/adb9ca&text=512x512",
+            default: "https://i.ibb.co/g90rTSp/picture.png",
         },
         views: {
             type: Number,
@@ -59,7 +59,7 @@ const ProductSchema = new Schema(
         },
         rating: {
             type: Number,
-            default: 5.0,
+            default: 0.0,
         },
     },
     { timestamps: true }

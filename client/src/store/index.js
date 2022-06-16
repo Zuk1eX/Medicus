@@ -37,6 +37,7 @@ export default createStore({
         searchText: "",
         loadingState: true,
         productsPopular: [],
+        userCoords: [],
     },
     getters: {
         searchOverlayActive(state) {
@@ -53,6 +54,9 @@ export default createStore({
         },
         productsPopular(state) {
             return state.productsPopular;
+        },
+        userCoords(state) {
+            return state.userCoords;
         },
     },
     mutations: {
@@ -73,6 +77,9 @@ export default createStore({
         },
         setProductsPopular(state, value) {
             state.productsPopular = value;
+        },
+        setUserCoords(state, coords) {
+            state.userCoords = coords;
         },
     },
     actions: {

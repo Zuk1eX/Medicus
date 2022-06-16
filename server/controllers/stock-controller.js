@@ -72,7 +72,7 @@ class StockController {
             page = +page;
             if (["views", "minPrice", "stocksCount"].includes(sort)) {
                 direction = direction === "desc" ? -1 : 1;
-                if (isNumber(text) && text.length == 13) {
+                if (isNumber(text) && text.length === 13) {
                     const stock = await stockService.getStockByBarcode(text);
                     return res.json(stock[0]);
                 }
@@ -258,23 +258,19 @@ class StockController {
                 direction = "asc",
                 limit = 25,
                 page = 1,
+                coords = '',
                 ...filterArgs
             } = req.query;
+            console.log(req.query);
             limit = +limit;
             page = +page;
-            if (!["location", "price"].includes(sort)) {
+            if (!["pharmacy.distance", "price"].includes(sort)) {
                 return res
                     .status(400)
                     .json({ Error: "Invalid query <sort> parameter" });
             }
             direction = direction === "asc" ? 1 : -1;
-            let stocks = stockService.stocksFilterEntry(
-                productId,
-                sort,
-                direction,
-                limit,
-                limit * (page - 1)
-            );
+            let stocks = stockService.stocksFilterEntry(productId, coords);
             const checkArray = [
                 "minPrice",
                 "maxPrice",
@@ -316,7 +312,7 @@ class StockController {
                 stocks = stockService.stocksFilterMaxPrice(stocks, +maxPrice);
             }
             if (metro) {
-                const metroArray = metro.split(";");
+                const metroArray = metro.split(",");
                 stocks = stockService.stocksFilterMetro(stocks, metroArray);
             }
             if (!!is247) {

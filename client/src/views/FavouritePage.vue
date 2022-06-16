@@ -10,7 +10,7 @@
             </p>
         </div>
         <div class="separator-bold"></div>
-        <div class="section-sort" v-show="productsCount && !loadingFavouriteProductsData">
+        <!-- <div class="section-sort" v-show="productsCount && !loadingFavouriteProductsData">
             <p class="sort__title">Сортировать:</p>
             <div class="radio">
                 <input
@@ -32,7 +32,7 @@
                 />
                 <label for="sort-old-product">Сначала старые</label>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="container section-product-cards" v-show="productsCount && !loadingFavouriteProductsData">
         <product-card
@@ -64,7 +64,7 @@
             </p>
         </div>
         <div class="separator-bold"></div>
-        <div class="section-sort" v-show="pharmaciesCount && !loadingFavouritePharmaciesData">
+        <!-- <div class="section-sort" v-show="pharmaciesCount && !loadingFavouritePharmaciesData">
             <p class="sort__title">Сортировать:</p>
             <div class="radio">
                 <input
@@ -86,7 +86,7 @@
                 />
                 <label for="sort-old-pharmacy">Сначала старые</label>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="container section-pharmacy-cards" v-show="pharmaciesCount && !loadingFavouritePharmaciesData">
         <pharmacy-card

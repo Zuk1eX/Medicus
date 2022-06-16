@@ -3,10 +3,10 @@
         <div class="pharmacy-main">
             <img :src="pharmacyData.imageUrl" alt="" class="pharmacy__img" />
             <div class="pharmacy-description">
-                <h3 class="pharmacy__title">Планета здоровья</h3>
+                <h3 class="pharmacy__title">{{ pharmacyData.title }}</h3>
                 <div class="pharmacy-addresses">
-                    <p class="pharmacy__address">Москва, ул. Пушкина, д. 15</p>
-                    <p class="pharmacy__metro">Жулебино, Лермонтовский проспект</p>
+                    <p class="pharmacy__address">{{ pharmacyData.fullAddress }}</p>
+                    <p class="pharmacy__metro">{{ pharmacyData.fullMetro }}</p>
                 </div>
             </div>
         </div>
@@ -163,7 +163,7 @@ export default {
     align-items: center;
     border-radius: 50vmin;
     border: 2.5px solid #5680e9;
-    background: url("@/assets/icons/arrow-favourite.svg") 11px 5px no-repeat;
+    background: url("@/assets/icons/arrow-favourite.svg") 11px center no-repeat;
     transition: all 0.2s ease;
     transition-property: background-image, background-color;
     /* position: absolute; */

@@ -6,7 +6,13 @@
 import { mapGetters, mapMutations, mapActions } from "vuex";
 export default {
     methods: {
-        ...mapMutations(["setFavouriteProducts", "setFavouritePharmacies", "setHistoryProducts", "setHistoryQueries"]),
+        ...mapMutations([
+            "setFavouriteProducts",
+            "setFavouritePharmacies",
+            "setHistoryProducts",
+            "setHistoryQueries",
+            "setUserCoords",
+        ]),
         ...mapActions(["getRandomQueries"]),
     },
     computed: {
@@ -39,6 +45,20 @@ export default {
         this.setFavouritePharmacies(JSON.parse(localStorage.favouritePharmacies));
         this.setHistoryProducts(JSON.parse(localStorage.historyProducts));
         this.setHistoryQueries(JSON.parse(localStorage.historyQueries));
+
+        navigator.permissions.query({ name: "geolocation" }).then((data) => {
+            if (data.state === "prompt") {
+                setTimeout(() => {
+                    navigator.geolocation.getCurrentPosition((pos) =>
+                        this.setUserCoords([pos.coords.longitude, pos.coords.latitude])
+                    );
+                }, 2000);
+            } else {
+                navigator.geolocation.getCurrentPosition((pos) =>
+                    this.setUserCoords([pos.coords.longitude, pos.coords.latitude])
+                );
+            }
+        });
     },
 };
 </script>

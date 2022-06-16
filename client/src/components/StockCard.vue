@@ -87,10 +87,14 @@
                         </div>
                     </div>
                     <div class="stock__pharmacy-description">
-                        <p class="description__title">Как добраться:</p>
-                        <p class="description__inner">
-                            м. "Водный Стадион", последний вагон из центра, перейти дорогу, пешком 5 минут, аптека
-                            находится в ЖК "Водный"
+                        <div class="description__box">
+                            <p class="description__title">Как добраться:</p>
+                            <p class="description__distance" v-if="pharmacyData.distance">
+                                {{ pharmacyData.distance.toFixed(0) }} м
+                            </p>
+                        </div>
+                        <p class="description__inner" v-show="pharmacyData.locationDescr">
+                            {{ pharmacyData.locationDescr }}
                         </p>
                     </div>
                 </div>
@@ -230,8 +234,9 @@ export default {
     align-items: center;
     gap: 15px;
     /* flex: 0.715; */
-    flex: 0.745;
-    margin-right: auto;
+    /* flex: 0.745; */
+    /* margin-right: auto; */
+    width: calc((1276px - 20px * 2) / 2 - 51px);
 }
 
 .stock__img {
@@ -240,6 +245,7 @@ export default {
     height: 90px;
     border-radius: 10px;
     object-fit: contain;
+    background-color: #ffffff;
 }
 
 .stock-description {
@@ -319,12 +325,13 @@ export default {
     background-color: #babbbf;
     border-radius: 1px;
     margin: 0 20px;
+    flex-shrink: 0;
 }
 
 .stock-mods {
     display: flex;
     gap: 15px;
-    margin-right: auto;
+    margin-right: 1%;
 }
 
 .stock__mod {
@@ -352,6 +359,8 @@ export default {
     gap: 10px;
     font-size: 18px;
     margin-right: auto;
+    width: 22%;
+    word-break: break-word;
 }
 
 .stock__phone,
@@ -388,8 +397,9 @@ export default {
     font-weight: 600;
     font-size: 26px;
     color: #5680e9;
-    flex: 0.2;
+    /* flex: 0.2; */
     text-align: right;
+    min-width: 10%;
 }
 
 .stock-more {
@@ -486,6 +496,19 @@ export default {
     font-size: 16px;
     line-height: 125%;
     color: #6f6f6f;
+}
+
+.description__box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.description__distance {
+    font-size: 18px;
+    font-weight: 600;
+    color: #6f6f6f;
+    margin-bottom: 15px;
 }
 
 .schedule__inner {
