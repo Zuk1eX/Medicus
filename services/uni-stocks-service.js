@@ -105,14 +105,18 @@ class UniStocksService {
         ]);
     }
 
-    stocksByProductId(id) {
-        return stockModel.aggregate([
+    stocksByProductId(id, coords) {
+        const stocksPipeline = [
             {
                 $match: {
                     product: Types.ObjectId(id),
                     isStocked: true,
                 },
             },
+
+            // place for pharmacy lookup
+
+            { $unwind: { path: "$pharmacy" } },
             {
                 $lookup: {
                     from: "products",
@@ -121,16 +125,7 @@ class UniStocksService {
                     as: "product",
                 },
             },
-            {
-                $lookup: {
-                    from: "pharmacies",
-                    localField: "pharmacy",
-                    foreignField: "_id",
-                    as: "pharmacy",
-                },
-            },
             { $unwind: { path: "$product" } },
-            { $unwind: { path: "$pharmacy" } },
             {
                 $match: {
                     "pharmacy.title": { $ne: "admin" },
@@ -157,18 +152,57 @@ class UniStocksService {
                     "pharmacy.is247": 1,
                     "pharmacy.imageUrl": 1,
                     "pharmacy.locationDescr": 1,
+                    "pharmacy.link": 1,
+                    "pharmacy.distance": 1,
                     isStocked: 1,
                     isDiscounted: 1,
                     price: 1,
                 },
             },
-
             {
                 $facet: {
                     results: [],
                 },
             },
-        ]);
+        ];
+
+        if (coords) {
+            stocksPipeline.splice(1, 0, {
+                $lookup: {
+                    from: "pharmacies",
+                    let: { pharmacyId: "$pharmacy" },
+                    pipeline: [
+                        {
+                            $geoNear: {
+                                distanceField: "distance",
+                                near: {
+                                    type: "Point",
+                                    coordinates: coords,
+                                    spherical: true,
+                                },
+                            },
+                        },
+                        {
+                            $match: {
+                                $expr: { $eq: ["$$pharmacyId", "$_id"] },
+                            },
+                        },
+                    ],
+                    as: "pharmacy",
+                },
+            });
+        } else {
+            stocksPipeline.splice(1, 0, {
+                $lookup: {
+                    from: "pharmacies",
+                    localField: "pharmacy",
+                    foreignField: "_id",
+                    as: "pharmacy",
+                },
+            });
+        }
+
+        return stockModel.aggregate(stocksPipeline);
     }
 }
 

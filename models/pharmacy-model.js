@@ -46,6 +46,7 @@ const PharmacySchema = new Schema(
         },
         location: {
             type: locationSchema,
+            index: '2dsphere'
         },
         workingHours: {
             type: [scheduleSchema],
@@ -68,6 +69,7 @@ const PharmacySchema = new Schema(
         },
         imageUrl: {
             type: String,
+            default: "https://i.ibb.co/g90rTSp/picture.png",
         },
         locationDescr: {
             type: String,

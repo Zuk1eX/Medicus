@@ -101,10 +101,14 @@ getAllStocksByProductId
 
 */
 
-mongoose.connect("mongodb://127.0.0.1:27017/medicus", {
-    useNewUrlParser: true,
-    useUnifiedtopology: true,
-});
+mongoose.connect(
+    "mongodb://admin:zuk1ex@localhost:27017/?authMechanism=DEFAULT",
+    {
+        useNewUrlParser: true,
+        useUnifiedtopology: true,
+        dbName: "medicus",
+    }
+);
 
 // const productModel = mongoose.model("Product", ProductSchema);
 
@@ -406,24 +410,6 @@ mongoose.connect("mongodb://127.0.0.1:27017/medicus", {
 //     ])
 //     .then((data) => console.log(data));
 
-// let ids;
-// (async () => {
-//     await productModel
-//         .aggregate([{ $project: { _id: 1 } }])
-//         .then((data) => (ids = data));
-//     console.log(ids);
-//     ids.forEach(async (element) => {
-//         await stockModel.insertMany([
-//             {
-//                 product: element._id,
-//                 pharmacy: "626c2799d21fd9706c9f13dc",
-//                 price: 0,
-//                 isStocked: false,
-//             },
-//         ]);
-//     });
-// })();
-
 // pharmacyModel.updateMany(
 //     {$set: {locationDescr: `м. "Водный Стадион", последний вагон из центра, перейти дорогу, пешком 5 минут, аптека находится в ЖК "Водный"`}}
 // ).then(console.log('OK'))
@@ -439,3 +425,410 @@ mongoose.connect("mongodb://127.0.0.1:27017/medicus", {
 //         $set: { imageUrl: "https://i.ibb.co/g90rTSp/picture.png" },
 //     })
 //     .then(console.log("OK"));
+
+// productModel.insertMany([
+// ]).then(console.log('OK'));
+
+// productModel
+//     .insertMany([
+//         {
+//             title: "Лозап плюс",
+//             form: "таблетки, покрытые пленочной оболочкой",
+//             dosage: "50 мг+12.5 мг",
+//             "vendor.title": "Zentiva",
+//             "vendor.country": "Чешская Республика",
+//             inn: "Гидрохлоротиазид+Лозартан",
+//             pharmgroup:
+//                 "Комбинация антагонистов рецепторов ангиотензина II и диуретиков",
+//             quantity: "90 шт.",
+//             imageUrl:
+//                 "https://uteka.ru/media/768/0/79/079d2c4a2f31bf716719eaa396ce8b1e.jpg",
+//             barcode: "0000000000999",
+//         },
+//     ])
+//     .then(console.log("Ok"), console.log("err"));
+const products = [
+    {
+        title: "Оциллококцинум",
+        form: "гранулы гомеопатические",
+        dosage: "1 г",
+        vendor: {
+            title: "Laboratoires Boiron",
+            country: "Франция",
+        },
+        inn: "",
+        pharmgroup: "Гомеопатические противопростудные средства",
+        quantity: "30 шт.",
+        imageUrl:
+            "https://uteka.ru/media/1024/5/0c/50cfed4bf19f38bc982e591029929290.jpg",
+        barcode: "0000000000176",
+    },
+];
+
+const pharmacies = [
+    {
+        title: "Здоров.ру",
+        region: "Москва",
+        address: "ул. Генерала Кузнецова, д. 26, корп. 1",
+        metro: ["Жулебино"],
+        workingHours: [
+            {
+                open: "07:00",
+                close: "23:00",
+            },
+            {
+                open: "07:00",
+                close: "23:00",
+            },
+            {
+                open: "07:00",
+                close: "23:00",
+            },
+        ],
+        phone: "+74953633500",
+        site: "www.zdorov.ru",
+        email: "zdorov-ru@pharm.com",
+        imageUrl:
+            "https://media.cdnandroid.com/item_images/942354/imagen-zdorov-ru-0big.jpg",
+        locationDescr:
+            'м. "Жулебино", первый вагон из центра, из стеклянных дверей направо, по леснице налево, выход на улицу направо.',
+        location: {
+            type: "Point",
+            coordinates: [37.8531915, 55.68407156906059],
+        },
+    },
+    {
+        title: "Апрель",
+        region: "Москва",
+        address: "Жулебинский б-р, д. 28, корп. 1",
+        metro: ["Жулебино", "Лермонтовский проспект"],
+        workingHours: [
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+            {
+                open: "09:00",
+                close: "21:00",
+            },
+            {
+                open: "09:00",
+                close: "20:00",
+            },
+        ],
+        phone: "+74957921824",
+        site: "www.aprel.ru",
+        email: "aprel@pharm.com",
+        imageUrl:
+            "https://sun9-26.userapi.com/2u6_tAvYUU4LuJhv5b5Z0zHU8dU88WG2uzn0IA/cUToAvr0RmM.jpg",
+        locationDescr:
+            'м. "Жулебино" автобус № 177, 669 остановка "Жулебинский бульвар".',
+        location: {
+            type: "Point",
+            coordinates: [37.8547545, 55.68972506904532],
+        },
+    },
+    {
+        title: "Будь Здоров!",
+        region: "Москва",
+        address: "Жулебинский бульвар, д. 9",
+        metro: ["Лермонтовский проспект"],
+        workingHours: [
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+            {
+                open: "10:00",
+                close: "22:00",
+            },
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+        ],
+        phone: "+74951210803",
+        site: "www.budzdorov.ru",
+        email: "budzdorov@pharm.com",
+        imageUrl: "https://yoplace.ru/media/chain/bud-zdorov-rigla.jpg",
+        locationDescr:
+            'м. "Лермонтовский проспект", выход из метро на Хвалынский бульвар, далее пешком 7 минут.',
+        location: {
+            type: "Point",
+            coordinates: [37.84850250000001, 55.69783256903636],
+        },
+    },
+    {
+        title: "Алоэ",
+        region: "Москва",
+        address: "Лермонтовский пр-кт, д.10, корп. 1",
+        metro: ["Лермонтовский проспект"],
+        workingHours: [
+            {
+                open: "09:00",
+                close: "21:00",
+            },
+            {
+                open: "09:00",
+                close: "21:00",
+            },
+            {
+                open: "09:00",
+                close: "21:00",
+            },
+        ],
+        phone: "+74994029292",
+        site: "www.aloe.ru",
+        email: "aloe@pharm.com",
+        imageUrl:
+            "https://static.tildacdn.com/tild3662-3238-4062-a436-666262656335/1_1.jpg",
+        locationDescr: 'м. "Лермонтовский проспект", пешком 5 минут.',
+        location: {
+            type: "Point",
+            coordinates: [37.85180799999996, 55.70056256904339],
+        },
+    },
+    {
+        title: "ЗдравСити",
+        region: "Москва",
+        address: "ул. Генерала Кузнецова, д. 14/1",
+        metro: ["Жулебино"],
+        workingHours: [
+            {
+                open: "00:00",
+                close: "00:00",
+            },
+            {
+                open: "00:00",
+                close: "00:00",
+            },
+            {
+                open: "00:00",
+                close: "00:00",
+            },
+        ],
+        phone: "+78007773003",
+        site: "www.zdravcity.ru",
+        email: "zdravcity@pharm.com",
+        imageUrl: "https://i.ibb.co/Kb6MbH5/image.png",
+        locationDescr:
+            'м. "Жулебино", последний вагон из центра, из стеклянных дверей направо, выход на улицу направо, вперед 800 метров.',
+        location: {
+            type: "Point",
+            coordinates: [37.858329999999974, 55.68963406904511],
+        },
+    },
+    {
+        title: "Ригла",
+        region: "Москва",
+        address: "ул. Авиаконструктора Миля, д. 8, корп. 1",
+        metro: ["Жулебино"],
+        workingHours: [
+            {
+                open: "08:00",
+                close: "22:00",
+            },
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+        ],
+        phone: "+74952311697",
+        site: "www.rigla.ru",
+        email: "rigla@pharm.com",
+        imageUrl: "https://skt.maxi-shopping.ru/images/cms/logo/logo_rigla.jpg",
+        locationDescr: 'м. "Жулебино", рядом c метро.',
+        location: {
+            type: "Point",
+            coordinates: [37.85291299999993, 55.68470106903241],
+        },
+    },
+    {
+        title: "Планета Здоровья",
+        region: "Москва",
+        address: "ул. Маршала Полубоярова, вл. 4, корп. 1",
+        metro: ["Жулебино"],
+        workingHours: [
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+            {
+                open: "09:00",
+                close: "22:00",
+            },
+        ],
+        phone: "+74951459933",
+        site: "www.planetazdorovo.ru",
+        email: "planetazdorovo@pharm.com",
+        imageUrl:
+            "https://s3.eu-central-1.amazonaws.com/images.hipdir/860199/7d68bed37030e5471fcb36b28c3b5cf67bdffe4bf159720cb2dcf75222264fce.jpeg",
+        locationDescr:
+            'м. "Жулебино", пешком 5-7 минут, аптека находится в ТЦ "Ладный".',
+        location: {
+            type: "Point",
+            coordinates: [37.862632499999975, 55.68864906904254],
+        },
+    },
+    {
+        title: "Эконом",
+        region: "Московская обл., Люберцы",
+        address: "ул. Кирова, д. 9, корп. 3",
+        metro: ["Жулебино"],
+        workingHours: [
+            {
+                open: "09:00",
+                close: "21:00",
+            },
+            {
+                open: "09:00",
+                close: "21:00",
+            },
+            {
+                open: "09:00",
+                close: "21:00",
+            },
+        ],
+        phone: "+74957985598",
+        site: "www.econom.ru",
+        email: "econom@pharm.com",
+        locationDescr:
+            'м. "Жулебино" последний вагон из центра, пешком 10 минут. Аптека расположена напротив Храма.',
+        location: {
+            type: "Point",
+            coordinates: [37.8709065, 55.687685069040064],
+        },
+    },
+];
+
+const Any = new mongoose.Schema(
+    {
+        product: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+            required: true,
+        },
+        pharmacy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Pharmacy",
+            required: true,
+        },
+    },
+    { timestamps: true }
+);
+const testModel = mongoose.model("stock", Any);
+
+// let ids;
+// (async () => {
+//     await productModel
+//         .aggregate([{ $project: { _id: 1 } }])
+//         .then((data) => (ids = data));
+//     console.log(ids);
+//     ids.forEach(async (element) => {
+//         await testModel.insertMany([
+//             {
+//                 product: element._id,
+//                 pharmacy: "626c2799d21fd9706c9f13dc",
+//             },
+//         ]);
+//     });
+// })();
+
+(async () => {
+    // products.forEach(async (product) => {
+    //     let id = await productModel.insertMany([product]);
+    //     id = id[0]._id.toString();
+    //     await testModel.insertMany([
+    //         {
+    //             product: id,
+    //             pharmacy: "626c2799d21fd9706c9f13dc",
+    //         },
+    //     ]);
+    // });
+    // pharmacyModel.insertMany(pharmacies);
+    // pharmacyModel.createIndexes({ location: "2dsphere" });
+    // pharmacyModel
+    //     .find({
+    //         location: {
+    //             $near: {
+    //                 $geometry: {
+    //                     type: "Point",
+    //                     coordinates: [37.864679365512586, 55.68642719732848],
+    //                 },
+    //             },
+    //         },
+    //     })
+    //     .then((data) => console.log(data));
+    //62a7a3cadbc9363cc6cfd1c5
+    //62a7a3cadbc9363cc6cfd1ca
+    //62a7a3cadbc9363cc6cfd1cf
+    //62a7a3cadbc9363cc6cfd1d4
+    //62a7a3cadbc9363cc6cfd1d9
+    //62a7a3cadbc9363cc6cfd1de
+    //62a7a3cadbc9363cc6cfd1e3
+    //62a7a3cadbc9363cc6cfd1e8
+    //
+    //
+    //
+    //
+    // stockModel.insertMany([
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1c5",
+    //         price: 150.5,
+    //         isDiscounted: true,
+    //     },
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1ca",
+    //         price: 172,
+    //         isDiscounted: false,
+    //     },
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1cf",
+    //         price: 163,
+    //         isDiscounted: false,
+    //     },
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1d4",
+    //         price: 189.99,
+    //         isDiscounted: false,
+    //     },
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1d9",
+    //         price: 210,
+    //         isDiscounted: false,
+    //     },
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1de",
+    //         price: 158.7,
+    //         isDiscounted: true,
+    //     },
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1e3",
+    //         price: 231,
+    //         isDiscounted: false,
+    //     },
+    //     {
+    //         product: "62a78ab83f7ab1b1996d937b",
+    //         pharmacy: "62a7a3cadbc9363cc6cfd1e8",
+    //         price: 250.5,
+    //         isDiscounted: false,
+    //     },
+    // ]);
+})()
+    .then(console.log("ok"))
+    .catch((e) => console.log(e));

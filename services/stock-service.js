@@ -54,7 +54,6 @@ class StockService {
     async getAllStocks(sort, direction, limit, offset) {
         const stocks = await uniStocksService.stocksAggregateProduct().facet({
             results: [
-                
                 { $sort: { [sort]: direction } },
                 ...stocksResultsProject,
                 { $skip: offset },
@@ -180,7 +179,7 @@ class StockService {
             .project(stocksResultsFullProject);
         return [
             {
-                results: [{ item: stock[0] }],
+                results: stock[0] ? [{ item: stock[0] }] : [],
                 total: { resultsCount: stock.length },
             },
         ];
@@ -464,14 +463,13 @@ class StockService {
     //     return stocks;
     // }
 
-    stocksFilterEntry(id, sort, direction, limit, offset) {
-        return uniStocksService.stocksByProductId(
-            id,
-            sort,
-            direction,
-            limit,
-            offset
-        );
+    stocksFilterEntry(id, coords) {
+        if (coords) {
+            coords = coords
+                .split(",")
+                .map((coord) => (coord = parseFloat(coord)));
+        }
+        return uniStocksService.stocksByProductId(id, coords);
     }
 
     stocksFilterMinPrice(stocksEntry, minPrice) {
