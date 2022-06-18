@@ -87,7 +87,10 @@
                 </div>
 
                 <div class="filters__metro-pharmacy">
-                    <div class="filter-metro">
+                    <div
+                        :class="metroArray.length ? 'filter-metro--active' : 'filter-metro'"
+                        :data-metro-count="metroArray.length"
+                    >
                         <input
                             type="search"
                             name="metroTitle"
@@ -113,22 +116,27 @@
                         >
                             <div class="dropdown__back" @click="hideMetroDropdown"></div>
                             <div class="filter-metro__dropdown">
-                                <div class="checkbox" v-for="(metro, index) in metroList" :key="index">
-                                    <input
-                                        class="custom-checkbox"
-                                        type="checkbox"
-                                        :id="`filter-metro-${index}`"
-                                        name="filter-metro"
-                                        :value="metro.station"
-                                        v-model="metroArray"
-                                    />
-                                    <label :for="`filter-metro-${index}`"
-                                        ><span
-                                            class="metro-color"
-                                            :style="`background-color: #${metro.hex_color}`"
-                                        ></span
-                                        >{{ metro.station }}</label
-                                    >
+                                <button class="metro-reset" v-show="metroArray.length" @click="metroArray.length = 0">
+                                    Сбросить ({{ metroArray.length }})
+                                </button>
+                                <div class="filter-metro__dropdown-body">
+                                    <div class="checkbox" v-for="(metro, index) in metroList" :key="index">
+                                        <input
+                                            class="custom-checkbox"
+                                            type="checkbox"
+                                            :id="`filter-metro-${index}`"
+                                            name="filter-metro"
+                                            :value="metro.station"
+                                            v-model="metroArray"
+                                        />
+                                        <label :for="`filter-metro-${index}`"
+                                            ><span
+                                                class="metro-color"
+                                                :style="`background-color: #${metro.hex_color}`"
+                                            ></span
+                                            >{{ metro.station }}</label
+                                        >
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -191,11 +199,10 @@
 </template>
 <script>
 import metroList from "../metro";
-import VueMultiselect from "vue-multiselect";
 import { mapMutations, mapActions, mapGetters } from "vuex";
 import StockCard from "./StockCard.vue";
 export default {
-    components: { StockCard, VueMultiselect },
+    components: { StockCard },
     props: {
         productId: {
             type: String || [String],
@@ -220,7 +227,6 @@ export default {
     methods: {
         handleScroll() {
             if (this.metroDropdownActive && !this.metroDropdownActiveTimer) {
-                console.log(1);
                 this.metroDropdownActiveTimer = setTimeout(() => {
                     this.metroDropdownActive = false;
                 }, 500);
@@ -520,13 +526,15 @@ export default {
     margin-top: -2px;
 }
 
-.filter-metro {
+.filter-metro,
+.filter-metro--active {
     position: relative;
     width: 340px;
     height: 40px;
 }
 
-.filter-metro input::-webkit-search-cancel-button {
+.filter-metro input::-webkit-search-cancel-button,
+.filter-metro--active input::-webkit-search-cancel-button {
     -webkit-appearance: none;
     width: 15px;
     height: 15px;
@@ -534,7 +542,8 @@ export default {
     cursor: pointer;
 }
 
-.filter-metro input[type="search"] {
+.filter-metro input[type="search"],
+.filter-metro--active input[type="search"] {
     padding: 10px 10px 12px 45px;
     width: 100%;
     height: 100%;
@@ -558,6 +567,22 @@ export default {
     z-index: 5;
 }
 
+.filter-metro--active::before {
+    content: attr(data-metro-count);
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #5680e9;
+    border-radius: 50vmin;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    padding-top: 2px;
+    color: #ffffff;
+    z-index: 5;
+}
+
 .filter-metro__dropdown {
     position: absolute;
     height: 200px;
@@ -569,8 +594,38 @@ export default {
     top: calc(100% + 9px);
     /* visibility: hidden;
     opacity: 0; */
+    overflow: hidden;
+    padding: 15px 0 15px 15px;
+    display: flex;
+    flex-direction: column;
+    /* gap: 10px; */
+    /* transition: all 0.1s ease; */
+}
+
+.metro-reset {
+    padding-bottom: 10px;
+    text-align: left;
+    color: #9d9d9d;
+    transition: all 0.2s ease;
+}
+
+.metro-reset:hover {
+    color: #000000;
+}
+
+.filter-metro__dropdown-body {
+    position: relative;
+    /* height: 200px; */
+    /* width: 100%; */
+    /* background-color: #ffffff; */
+    /* box-shadow: 0px 5px 20px rgba(86, 128, 233, 0.5); */
+    /* border-radius: 10px; */
+    /* z-index: 3; */
+    /* top: calc(100% + 9px); */
+    /* visibility: hidden;
+    opacity: 0; */
     overflow: auto;
-    padding: 15px;
+    /* padding: 15px; */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -593,11 +648,11 @@ export default {
     margin-right: 9px;
 }
 
-.filter-metro__dropdown::-webkit-scrollbar {
+.filter-metro__dropdown-body::-webkit-scrollbar {
     width: 14px;
 }
 
-.filter-metro__dropdown::-webkit-scrollbar-track {
+.filter-metro__dropdown-body::-webkit-scrollbar-track {
     /* background-color: rgba(86, 128, 233, 0.3); */
     background-clip: content-box;
     border-right: 8px solid transparent;
@@ -606,13 +661,17 @@ export default {
     border-radius: 5px;
 }
 
-.filter-metro__dropdown::-webkit-scrollbar-thumb {
+.filter-metro__dropdown-body::-webkit-scrollbar-thumb {
     background-color: #5680e9;
     /* border-radius: 5px; */
     background-clip: content-box;
     border-right: 8px solid transparent;
     border-top: 0 solid transparent;
     border-bottom: 0 solid transparent;
+}
+
+.filter-metro__dropdown-body .custom-checkbox + label {
+    margin-top: 0;
 }
 
 .filter-pharmacy {
