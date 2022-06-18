@@ -261,7 +261,6 @@ class StockController {
                 coords = '',
                 ...filterArgs
             } = req.query;
-            console.log(req.query);
             limit = +limit;
             page = +page;
             if (!["pharmacy.distance", "price"].includes(sort)) {

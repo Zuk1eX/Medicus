@@ -8,7 +8,7 @@
                 <p class="stocks__top-item" v-show="stocksCount">
                     Диапазон цен:
                     <span class="semibold"
-                        >{{ formatPrice(MinMaxprice(0)) }} ... {{ formatPrice(MinMaxprice(1)) }} ₽</span
+                        >{{ formatPrice(minMaxPrice(0)) }} ... {{ formatPrice(minMaxPrice(1)) }} ₽</span
                     >
                 </p>
             </div>
@@ -27,7 +27,11 @@
                         v-model="sortOptions"
                         ref="locationSort"
                     />
-                    <label for="sort-location">Сначала ближайшие</label>
+                    <label
+                        for="sort-location"
+                        :title="!userCoords.length ? 'Разрешите доступ к Вашему местоположению' : ''"
+                        >Сначала ближайшие</label
+                    >
                 </div>
                 <div class="radio">
                     <input
@@ -53,9 +57,116 @@
                 </div>
             </div>
 
-            <!-- <div class="section-filters" v-show="stocksCount">
+            <div class="section-filters" v-show="stocksCount || filterOptions">
                 <p class="filters__title">Фильтровать:</p>
-            </div> -->
+                <div class="filters__checkboxes">
+                    <div class="checkbox">
+                        <input
+                            class="custom-checkbox"
+                            type="checkbox"
+                            id="filter-247"
+                            name="filter-247"
+                            true-value="1"
+                            false-value=""
+                            v-model="filterOptions.is247"
+                        />
+                        <label for="filter-247">Круглосуточные</label>
+                    </div>
+                    <div class="checkbox">
+                        <input
+                            class="custom-checkbox"
+                            type="checkbox"
+                            id="filter-discounted"
+                            name="filter-discounted"
+                            true-value="1"
+                            false-value=""
+                            v-model="filterOptions.isDiscounted"
+                        />
+                        <label for="filter-discounted">Со скидкой</label>
+                    </div>
+                </div>
+
+                <div class="filters__metro-pharmacy">
+                    <div class="filter-metro">
+                        <input
+                            type="search"
+                            name="metroTitle"
+                            placeholder="Станции метро..."
+                            v-model.trim="metro"
+                            @focus="showMetroDropdown"
+                            ref="metroInput"
+                        />
+                        <div
+                            style="
+                                z-index: 3;
+                                visibility: hidden;
+                                opacity: 0;
+                                transition: all 0.1s ease;
+                                position: relative;
+                            "
+                            ref="metroDropdown"
+                            :style="{
+                                visibility: metroDropdownActive ? 'visible' : 'hidden',
+                                opacity: metroDropdownActive ? 1 : 0,
+                                top: metroDropdownActive ? '0' : '-100%',
+                            }"
+                        >
+                            <div class="dropdown__back" @click="hideMetroDropdown"></div>
+                            <div class="filter-metro__dropdown">
+                                <div class="checkbox" v-for="(metro, index) in metroList" :key="index">
+                                    <input
+                                        class="custom-checkbox"
+                                        type="checkbox"
+                                        :id="`filter-metro-${index}`"
+                                        name="filter-metro"
+                                        :value="metro.station"
+                                        v-model="metroArray"
+                                    />
+                                    <label :for="`filter-metro-${index}`"
+                                        ><span
+                                            class="metro-color"
+                                            :style="`background-color: #${metro.hex_color}`"
+                                        ></span
+                                        >{{ metro.station }}</label
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-pharmacy">
+                        <input
+                            type="search"
+                            name="pharmacyTitle"
+                            placeholder="Аптечная сеть..."
+                            v-model.trim="filterOptions.pharmacy"
+                        />
+                    </div>
+                </div>
+                <div class="filters__prices">
+                    <div class="filter-price filter-price--min">
+                        <input
+                            type="number"
+                            name="minPrice"
+                            :placeholder="minMaxPrice(0)"
+                            v-model="filterOptions.minPrice"
+                            @input="setMinPrice($event)"
+                        />
+                    </div>
+                    <div class="filter-price filter-price--max">
+                        <input
+                            type="number"
+                            name="maxPrice"
+                            :placeholder="minMaxPrice(1)"
+                            v-model="filterOptions.maxPrice"
+                            @input="setMaxPrice($event)"
+                        />
+                    </div>
+                </div>
+                <div class="filters__buttons">
+                    <button class="filter-reset" @click="resetFilters">Сбросить</button>
+                    <button class="filter-apply" @click="(currentPage = 1), getStocksData()">Показать</button>
+                </div>
+            </div>
         </div>
         <div class="container section-stock-cards" v-show="stocksCount">
             <stock-card v-for="stock in stocksData.stocks" :key="stock['_id']" :stock-data="stock"></stock-card>
@@ -69,21 +180,29 @@
                 <use xlink:href="#loader"></use>
             </svg>
         </div>
-        <div class="section-empty" v-show="!stocksCount && !loadingStocksData">
+        <div class="section-empty" v-show="!stocksCount && !loadingStocksData && !Object.keys(filterOptions).length">
             Для данного товара предложения отсутствуют
+        </div>
+        <div class="section-empty" v-show="!stocksCount && !loadingStocksData && Object.keys(filterOptions).length">
+            Предложений не найдено
         </div>
         <div v-intersection="loadMoreStocksData" class="observer" v-if="stocksCount && !loadingStocksData"></div>
     </div>
 </template>
 <script>
+import metroList from "../metro";
+import VueMultiselect from "vue-multiselect";
 import { mapMutations, mapActions, mapGetters } from "vuex";
 import StockCard from "./StockCard.vue";
 export default {
-    components: { StockCard },
+    components: { StockCard, VueMultiselect },
     props: {
         productId: {
             type: String || [String],
         },
+    },
+    created() {
+        window.addEventListener("scroll", this.handleScroll);
     },
     data() {
         return {
@@ -91,9 +210,22 @@ export default {
             limit: 4,
 
             sortOptions: { sort: "price", direction: "asc" },
+            filterOptions: {},
+            metro: "",
+            metroArray: [],
+            metroDropdownActive: false,
+            metroDropdownActiveTimer: null,
         };
     },
     methods: {
+        handleScroll() {
+            if (this.metroDropdownActive && !this.metroDropdownActiveTimer) {
+                console.log(1);
+                this.metroDropdownActiveTimer = setTimeout(() => {
+                    this.metroDropdownActive = false;
+                }, 500);
+            }
+        },
         ...mapMutations(["changeLoadingStocksData", "clearStocksData", "setUserCoords"]),
         ...mapActions(["getStocksDataAPI", "getMoreStocksDataAPI"]),
         getStocksData() {
@@ -106,6 +238,7 @@ export default {
                         limit: this.limit,
                         page: this.currentPage,
                         ...this.sortOptions,
+                        ...this.filterOptions,
                     },
                 ]);
             }, 1000);
@@ -123,6 +256,7 @@ export default {
                             limit: this.limit,
                             page: this.currentPage,
                             ...this.sortOptions,
+                            ...this.filterOptions,
                         },
                     ]);
                 }, 500);
@@ -131,7 +265,7 @@ export default {
         formatPrice(price) {
             return new Intl.NumberFormat().format(price).replace(",", ".");
         },
-        MinMaxprice(price) {
+        minMaxPrice(price) {
             const { minPrice, maxPrice } = this.stocksData.total;
             return price === 0 ? minPrice : maxPrice;
         },
@@ -139,6 +273,41 @@ export default {
             navigator.geolocation.getCurrentPosition((pos) =>
                 this.setUserCoords([pos.coords.longitude, pos.coords.latitude])
             );
+        },
+        setMaxPrice(event) {
+            if (!!event.target.value && event.target.value >= 0 && event.target.value <= 999999999) {
+                this.filterOptions.maxPrice = event.target.value;
+            } else {
+                delete this.filterOptions.maxPrice;
+            }
+        },
+        setMinPrice(event) {
+            if (!!event.target.value && event.target.value >= 0 && event.target.value <= 999999999) {
+                this.filterOptions.minPrice = event.target.value;
+            } else {
+                delete this.filterOptions.minPrice;
+            }
+        },
+        resetFilters() {
+            this.filterOptions = {};
+            this.metroArray.length = 0;
+            this.currentPage = 1;
+            this.getStocksData();
+        },
+        showMetroDropdown() {
+            this.$refs.metroDropdown.style.visibility = "visible";
+            this.$refs.metroDropdown.style.opacity = 1;
+            this.metroDropdownActive = true;
+            this.metroDropdownActiveTimer = null;
+        },
+        hideMetroDropdown(event) {
+            if (event.target != this.$refs.metroDropdown) {
+                this.$refs.metroDropdown.style.visibility = "hidden";
+                this.$refs.metroDropdown.style.opacity = 0;
+            }
+            this.metroDropdownActive = false;
+            this.metroDropdownActiveTimer = null;
+            this.$refs.metroInput.blur();
         },
     },
     computed: {
@@ -158,6 +327,9 @@ export default {
         pageOffset() {
             return this.limit * this.currentPage;
         },
+        metroList() {
+            return metroList.filter((item) => item.station.toLowerCase().includes(this.metro));
+        },
     },
     watch: {
         $route(value) {
@@ -170,6 +342,19 @@ export default {
             this.currentPage = 1;
             this.clearStocksData();
             this.getStocksData();
+        },
+        filterOptions() {
+            this.currentPage = 1;
+        },
+        metroArray() {
+            this.filterOptions.metro = this.metroArray.join(",");
+        },
+        metroDropdownActive(value) {
+            if (value) {
+                this.$refs.metroInput.focus();
+            } else {
+                this.$refs.metroInput.blur();
+            }
         },
     },
     mounted() {
@@ -213,8 +398,6 @@ export default {
     margin-bottom: 60px;
 }
 
-/* fdasjokgmnlekampvlaeqlrvkjpakewolvp;aerjovkpaerjovckaspvhjpawkpvj;akswvojas'[vkoa[vkjoaervl[jaeovkparhejfv,mqaoehlawkrepvhraewvkpoahejwpvlkea */
-
 .section-sort {
     display: flex;
     align-items: center;
@@ -238,7 +421,7 @@ export default {
     align-items: center;
     user-select: none;
     font-size: 18px;
-    padding-top: 2px;
+    padding-top: 4px;
     cursor: pointer;
 }
 
@@ -269,7 +452,7 @@ export default {
 
 .section-filters {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px;
     margin-bottom: 10px;
 }
@@ -277,5 +460,269 @@ export default {
 .filters__title {
     font-weight: 600;
     font-size: 18px;
+}
+
+.filters__checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-left: 2px;
+}
+
+.custom-checkbox {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+.custom-checkbox + label {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+    font-size: 18px;
+    margin-top: -2px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.custom-checkbox + label::before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #5680e9;
+    border-radius: 5px;
+    margin-right: 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 89%;
+}
+
+.custom-checkbox:not(:disabled):not(:checked) + label:hover::before {
+    border-color: rgba(86, 128, 233, 0.5);
+}
+
+.custom-checkbox:checked + label::before {
+    background-color: #5680e9;
+    background-image: url("@/assets/icons/check.svg");
+}
+
+.custom-checkbox:disabled + label::before {
+    border-color: #babbbf;
+    color: #babbbf;
+    cursor: default;
+}
+
+.filters__metro-pharmacy {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: -2px;
+}
+
+.filter-metro {
+    position: relative;
+    width: 340px;
+    height: 40px;
+}
+
+.filter-metro input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    background: url("@/assets/icons/search_pharmacy--clear.svg") center no-repeat;
+    cursor: pointer;
+}
+
+.filter-metro input[type="search"] {
+    padding: 10px 10px 12px 45px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #5680e9;
+    border-radius: 10px;
+    font-size: 18px;
+    outline: none;
+    z-index: 4;
+    position: relative;
+}
+
+.filter-metro::before {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: url("@/assets/icons/search_pharmacy.svg") center no-repeat;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+}
+
+.filter-metro__dropdown {
+    position: absolute;
+    height: 200px;
+    width: 100%;
+    background-color: #ffffff;
+    box-shadow: 0px 5px 20px rgba(86, 128, 233, 0.5);
+    border-radius: 10px;
+    z-index: 3;
+    top: calc(100% + 9px);
+    /* visibility: hidden;
+    opacity: 0; */
+    overflow: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.1s ease;
+}
+
+.dropdown__back {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+}
+
+.metro-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50vmin;
+    margin-right: 9px;
+}
+
+.filter-metro__dropdown::-webkit-scrollbar {
+    width: 14px;
+}
+
+.filter-metro__dropdown::-webkit-scrollbar-track {
+    /* background-color: rgba(86, 128, 233, 0.3); */
+    background-clip: content-box;
+    border-right: 8px solid transparent;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-radius: 5px;
+}
+
+.filter-metro__dropdown::-webkit-scrollbar-thumb {
+    background-color: #5680e9;
+    /* border-radius: 5px; */
+    background-clip: content-box;
+    border-right: 8px solid transparent;
+    border-top: 0 solid transparent;
+    border-bottom: 0 solid transparent;
+}
+
+.filter-pharmacy {
+    position: relative;
+    width: 340px;
+    height: 40px;
+}
+
+.filter-pharmacy input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    background: url("@/assets/icons/search_pharmacy--clear.svg") center no-repeat;
+    cursor: pointer;
+}
+
+.filter-pharmacy input {
+    padding: 10px 10px 12px 45px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #5680e9;
+    border-radius: 10px;
+    font-size: 18px;
+    outline: none;
+}
+
+.filter-pharmacy::before {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: url("@/assets/icons/search_pharmacy.svg") center no-repeat;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.filters__prices {
+    display: flex;
+    gap: 10px;
+    margin-top: -2px;
+}
+
+.filter-price {
+    position: relative;
+    width: 140px;
+    height: 40px;
+}
+
+.filter-price--min::before {
+    content: "от";
+}
+
+.filter-price--max::before {
+    content: "до";
+}
+
+.filter-price input {
+    padding: 10px 35px 12px 45px;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #5680e9;
+    border-radius: 10px;
+    font-size: 18px;
+    outline: none;
+}
+
+.filter-price::before {
+    position: absolute;
+    font-size: 18px;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.filter-price::after {
+    content: "₽";
+    position: absolute;
+    font-size: 18px;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.filters__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: auto;
+    margin-top: -2px;
+}
+
+.filter-reset,
+.filter-apply {
+    width: 150px;
+    height: 40px;
+    border: 2px solid #5680e9;
+    border-radius: 10px;
+    color: #5680e9;
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.filter-apply {
+    background-color: #5680e9;
+    color: #ffffff;
 }
 </style>

@@ -186,7 +186,7 @@ export default {
     background-color: rgba(255, 255, 255, 1);
     /* backdrop-filter: blur(10px); */
     width: 100%;
-    z-index: 3;
+    z-index: 6;
     position: sticky;
     top: -15px;
     transition: box-shadow 0.2s ease;

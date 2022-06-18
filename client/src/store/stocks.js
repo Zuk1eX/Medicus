@@ -22,6 +22,8 @@ export default {
         },
         clearStocksData(state) {
             state.stocksData.stocks.length = 0;
+            state.stocksData.total.minPrice = 0;
+            state.stocksData.total.maxPrice = 0;
             state.stocksData.total.stocksCount = 0;
         },
         changeLoadingStocksData(state, value) {
