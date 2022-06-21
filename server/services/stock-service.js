@@ -43,6 +43,7 @@ const stocksResultsFullProject = {
     fullVendor: {
         $concat: ["$vendor.title", ", ", "$vendor.country"],
     },
+    views: 1,
     rating: 1,
     imageUrl: 1,
     minPrice: 1,
@@ -159,11 +160,15 @@ class StockService {
         };
         const stocks = await uniStocksService
             .stocksAggregateProduct()
-            .sort({ [sort]: direction })
-            .project(stocksResultsFullProject);
+            .project(stocksResultsFullProject)
+            .sort({ [sort]: direction });
+        if (sort !== "relevance") {
+            fuseOptions.sortFn = (a, b) => a[sort] - b[sort];
+        }
         const fuseSearch = new Fuse(stocks, fuseOptions);
         const resultStocks = fuseSearch.search(text);
         const limitedResultStocks = resultStocks.slice(offset, offset + limit);
+        // return [stocks];
         return [
             {
                 results: limitedResultStocks,

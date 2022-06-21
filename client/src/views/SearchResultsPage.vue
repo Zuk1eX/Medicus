@@ -18,12 +18,23 @@
                 <input
                     class="custom-radio"
                     type="radio"
-                    id="sort-location"
+                    id="sort-relevance"
+                    name="sort"
+                    :value="{ sort: 'relevance', direction: 'desc' }"
+                    v-model="sortOptions"
+                />
+                <label for="sort-relevance">Сначала релевантные</label>
+            </div>
+            <div class="radio">
+                <input
+                    class="custom-radio"
+                    type="radio"
+                    id="sort-popular"
                     name="sort"
                     :value="{ sort: 'views', direction: 'desc' }"
                     v-model="sortOptions"
                 />
-                <label for="sort-location">Сначала популярные</label>
+                <label for="sort-popular">Сначала популярные</label>
             </div>
             <div class="radio">
                 <input
@@ -47,7 +58,7 @@
                 />
                 <label for="sort-maxPrice">Сначала дорогие</label>
             </div>
-            <div class="radio">
+            <!-- <div class="radio">
                 <input
                     class="custom-radio"
                     type="radio"
@@ -57,7 +68,7 @@
                     v-model="sortOptions"
                 />
                 <label for="sort-stocksCount">Сначала в наличии</label>
-            </div>
+            </div> -->
         </div>
     </div>
     <div class="container section-product-cards" v-show="productsCount">
@@ -104,7 +115,7 @@ export default {
             currentPage: 1,
             limit: 12,
 
-            sortOptions: { sort: "views", direction: "desc" },
+            sortOptions: { sort: "relevance", direction: "desc" },
         };
     },
     methods: {

@@ -58,7 +58,7 @@ class StockController {
         try {
             let {
                 text,
-                sort = "views",
+                sort = "relevance",
                 direction = "desc",
                 limit = 5,
                 page = 1,
@@ -70,7 +70,9 @@ class StockController {
             }
             limit = +limit;
             page = +page;
-            if (["views", "minPrice", "stocksCount"].includes(sort)) {
+            if (
+                ["relevance", "views", "minPrice", "stocksCount"].includes(sort)
+            ) {
                 direction = direction === "desc" ? -1 : 1;
                 if (isNumber(text) && text.length === 13) {
                     const stock = await stockService.getStockByBarcode(text);
@@ -258,7 +260,7 @@ class StockController {
                 direction = "asc",
                 limit = 25,
                 page = 1,
-                coords = '',
+                coords = "",
                 ...filterArgs
             } = req.query;
             limit = +limit;
