@@ -210,6 +210,7 @@ export default {
         toggleSpoiler(event) {
             event.currentTarget.querySelector(".spoiler-icon").classList.toggle("spoiler-icon--active");
             event.currentTarget.nextElementSibling.classList.toggle("spoiler__text--active");
+            event.currentTarget.parentElement.classList.toggle("spoiler--active");
         },
     },
 };
@@ -235,6 +236,16 @@ export default {
     gap: 30px;
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 16px;
+    transition: all 0.2s ease;
+}
+
+.faq__spoiler:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.spoiler--active {
+    background-color: #f4f5f8;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .spoiler__top {
