@@ -829,6 +829,25 @@ const testModel = mongoose.model("stock", Any);
     //         isDiscounted: false,
     //     },
     // ]);
+    let productsIds = await productModel.find().select("_id");
+    productsIds = productsIds.map((product) => product._id.toString());
+    let pharmaciesIds = await pharmacyModel.find().select("_id");
+    pharmaciesIds = pharmaciesIds.map((pharmacy) => pharmacy._id.toString()).filter((pharmacy) => pharmacy !== "626c2799d21fd9706c9f13dc");
+    let stock = [];
+    for (let i = 0; i < productsIds.length; i++) {
+        for (let j = 0; j < pharmaciesIds.length; j++) {
+            if (Math.random() > 0.5) {
+                continue;
+            }
+            stock.push({
+                product: productsIds[i],
+                pharmacy: pharmaciesIds[j],
+                price: (Math.random() * 100 + 52).toFixed(2),
+                isDiscounted: Math.random() > 0.5,
+            });
+        }
+    }
+    await stockModel.insertMany(stock);
 })()
     .then(console.log("ok"))
     .catch((e) => console.log(e));

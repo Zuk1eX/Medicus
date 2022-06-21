@@ -43,6 +43,7 @@ const stocksResultsFullProject = {
     fullVendor: {
         $concat: ["$vendor.title", ", ", "$vendor.country"],
     },
+    views: 1,
     rating: 1,
     imageUrl: 1,
     minPrice: 1,
@@ -159,11 +160,15 @@ class StockService {
         };
         const stocks = await uniStocksService
             .stocksAggregateProduct()
-            .sort({ [sort]: direction })
-            .project(stocksResultsFullProject);
+            .project(stocksResultsFullProject)
+            .sort({ [sort]: direction });
+        if (sort !== "relevance") {
+            fuseOptions.sortFn = (a, b) => a[sort] - b[sort];
+        }
         const fuseSearch = new Fuse(stocks, fuseOptions);
         const resultStocks = fuseSearch.search(text);
         const limitedResultStocks = resultStocks.slice(offset, offset + limit);
+        // return [stocks];
         return [
             {
                 results: limitedResultStocks,
@@ -335,25 +340,7 @@ class StockService {
                 {
                     $group: {
                         _id: "$pharmacy._id",
-                        // title: { $first: "$pharmacy.title" },
-                        // region: { $first: "$pharmacy.region" },
-                        // address: { $first: "$pharmacy.address" },
-                        // metro: { $first: "$pharmacy.metro" },
-                        // location: { $first: "$pharmacy.location" },
-                        // workingHours: { $first: "$pharmacy.workingHours" },
-                        // phone: { $first: "$pharmacy.phone" },
-                        // site: { $first: "$pharmacy.site" },
-                        // email: { $first: "$pharmacy.email" },
                         stocks: {
-                            //     $push: {
-                            //         $mergeObjects: [
-                            //             "$product",
-
-                            //             { price: "$price" },
-                            //             { isStocked: "$isStocked" },
-                            //             { isDiscounted: "$isDiscounted" },
-                            //         ],
-                            //     },
                             $push: {
                                 $mergeObjects: [
                                     {
@@ -378,6 +365,7 @@ class StockService {
                                         },
                                         rating: "$product.rating",
                                         imageUrl: "$product.imageUrl",
+                                        views: "$product.views",
                                         // stocksCount: '$product'
                                     },
                                     { price: "$price" },
@@ -429,8 +417,8 @@ class StockService {
                             stocks: 1,
                         },
                     },
-                    { $skip: offset },
-                    { $limit: limit },
+                    // { $limit: limit },
+                    // { $skip: offset },
                 ],
                 total: [
                     // { $count: "stocksCount" },
