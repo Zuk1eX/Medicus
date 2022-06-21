@@ -335,25 +335,7 @@ class StockService {
                 {
                     $group: {
                         _id: "$pharmacy._id",
-                        // title: { $first: "$pharmacy.title" },
-                        // region: { $first: "$pharmacy.region" },
-                        // address: { $first: "$pharmacy.address" },
-                        // metro: { $first: "$pharmacy.metro" },
-                        // location: { $first: "$pharmacy.location" },
-                        // workingHours: { $first: "$pharmacy.workingHours" },
-                        // phone: { $first: "$pharmacy.phone" },
-                        // site: { $first: "$pharmacy.site" },
-                        // email: { $first: "$pharmacy.email" },
                         stocks: {
-                            //     $push: {
-                            //         $mergeObjects: [
-                            //             "$product",
-
-                            //             { price: "$price" },
-                            //             { isStocked: "$isStocked" },
-                            //             { isDiscounted: "$isDiscounted" },
-                            //         ],
-                            //     },
                             $push: {
                                 $mergeObjects: [
                                     {
@@ -378,6 +360,7 @@ class StockService {
                                         },
                                         rating: "$product.rating",
                                         imageUrl: "$product.imageUrl",
+                                        views: "$product.views",
                                         // stocksCount: '$product'
                                     },
                                     { price: "$price" },
@@ -429,8 +412,8 @@ class StockService {
                             stocks: 1,
                         },
                     },
-                    { $skip: offset },
-                    { $limit: limit },
+                    // { $limit: limit },
+                    // { $skip: offset },
                 ],
                 total: [
                     // { $count: "stocksCount" },

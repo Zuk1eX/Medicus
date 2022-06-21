@@ -1,6 +1,8 @@
 <template>
     <div class="product-card">
-        <img alt="" class="card__img" :src="productData.imageUrl" />
+        <router-link :to="{ name: 'product', params: { id: productData._id } }" :title="productData.fullTitle">
+            <img alt="" class="card__img" :src="productData.imageUrl" />
+        </router-link>
         <button class="card__favourite" @click="toggleFavouriteProduct">
             <img :src="productFavouriteIcon" alt="" />
         </button>

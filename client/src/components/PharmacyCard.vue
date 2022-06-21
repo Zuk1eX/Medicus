@@ -1,9 +1,15 @@
 <template>
     <div class="pharmacy-card">
         <div class="pharmacy-main">
-            <img :src="pharmacyData.imageUrl" alt="" class="pharmacy__img" />
+            <router-link :to="{ name: 'pharmacy', params: { id: pharmacyData._id } }">
+                <img :src="pharmacyData.imageUrl" alt="" class="pharmacy__img" />
+            </router-link>
             <div class="pharmacy-description">
-                <h3 class="pharmacy__title">{{ pharmacyData.title }}</h3>
+                <h3 class="pharmacy__title">
+                    <router-link :to="{ name: 'pharmacy', params: { id: pharmacyData._id } }">{{
+                        pharmacyData.title
+                    }}</router-link>
+                </h3>
                 <div class="pharmacy-addresses">
                     <p class="pharmacy__address">{{ pharmacyData.fullAddress }}</p>
                     <p class="pharmacy__metro">{{ pharmacyData.fullMetro }}</p>

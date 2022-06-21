@@ -222,6 +222,8 @@ export default {
             metroArray: [],
             metroDropdownActive: false,
             metroDropdownActiveTimer: null,
+
+            loadedStocksCount: 0,
         };
     },
     methods: {

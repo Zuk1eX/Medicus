@@ -4,7 +4,7 @@
             <div class="faq__spoiler">
                 <div class="spoiler__top" @click="toggleSpoiler($event)">
                     <h4 class="spoiler__title">
-                        Пользовалась подобными сервисами-агрегаторами, чем Medicus лучше остальных?
+                        Пользовался подобными сервисами-агрегаторами, чем Medicus лучше остальных?
                     </h4>
                     <img class="spoiler-icon" :src="require('@/assets/icons/arrow-spoiler.svg')" alt="" />
                 </div>
